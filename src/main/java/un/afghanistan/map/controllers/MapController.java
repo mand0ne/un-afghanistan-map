@@ -24,6 +24,8 @@ import com.esri.arcgisruntime.security.UserCredential;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
@@ -33,8 +35,11 @@ import java.util.Map;
 public class MapController {
     @FXML
     private BorderPane pane;
+    @FXML
+    private StackPane centerPane;
 
     private MapView mapView;
+
 
     @FXML
     public void initialize() {
@@ -55,7 +60,7 @@ public class MapController {
                 mapView = new MapView();
                 mapView.setMap(map);
 
-                pane.setCenter(mapView);
+                centerPane.getChildren().add(mapView);
 
                 GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
                 mapView.getGraphicsOverlays().add(graphicsOverlay);

@@ -45,7 +45,7 @@ public class App extends Application {
         primaryStage = stage;
         StageUtils.setStage(primaryStage, "UN Afghanistan Map", false, StageStyle.DECORATED, null);
         primaryStage.getIcons().add(new Image("/un/afghanistan/map/img/unLogo.png"));
-        StageUtils.centerStage(primaryStage, 1200, 800);
+        StageUtils.centerStage(primaryStage, 1300, 900);
         primaryStage.setScene(new Scene(FXMLUtils.loadController("fxml/map.fxml")));
         primaryStage.show();
     }
