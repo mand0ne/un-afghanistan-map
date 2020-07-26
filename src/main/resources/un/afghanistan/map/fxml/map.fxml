@@ -63,7 +63,7 @@
                      <children>
                         <ToolBar style="-fx-background-color: #123456;">
                           <items>
-                              <JFXButton prefWidth="75.0" style="-fx-background-color: white;" text="Add" textAlignment="CENTER" textFill="#123456">
+                              <JFXButton fx:id="addPointBtn" onAction="#addPointAction" prefWidth="75.0" style="-fx-background-color: white;" text="Add" textAlignment="CENTER" textFill="#123456">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
