@@ -24,7 +24,11 @@ import com.esri.arcgisruntime.security.UserCredential;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.esri.arcgisruntime.symbology.TextSymbol;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Tooltip;
@@ -36,10 +40,16 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import un.afghanistan.map.utility.database.Location;
 import un.afghanistan.map.utility.database.LocationDAO;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import un.afghanistan.map.utility.FXMLUtils;
 
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.Map;
+
+import static javafx.scene.control.PopupControl.USE_COMPUTED_SIZE;
 
 
 public class MapController {
@@ -52,6 +62,15 @@ public class MapController {
 
     private MapView mapView;
     private ArcGISMap map;
+
+    public void addPointAction(ActionEvent actionEvent) {
+        Stage stage = new Stage();
+        Parent root = null;
+        stage.setTitle("Add point");
+        stage.setScene(new Scene(FXMLUtils.loadController("fxml/addPoint.fxml")));
+        stage.setResizable(false);
+        stage.showAndWait();
+    }
 
     private class BasemapListCell extends ListCell<String> {
         protected void updateItem(String item, boolean empty){
