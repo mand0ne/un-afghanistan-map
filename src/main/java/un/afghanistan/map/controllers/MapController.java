@@ -21,16 +21,21 @@ import com.esri.arcgisruntime.portal.PortalUser;
 import com.esri.arcgisruntime.security.CredentialChangedEvent;
 import com.esri.arcgisruntime.security.CredentialChangedListener;
 import com.esri.arcgisruntime.security.UserCredential;
+import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
+import com.esri.arcgisruntime.symbology.TextSymbol;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import un.afghanistan.map.utility.database.Location;
+import un.afghanistan.map.utility.database.LocationDAO;
 
 
 import java.awt.*;
@@ -92,18 +97,24 @@ public class MapController {
 
                 centerPane.getChildren().add(mapView);
 
+                // create a graphic overlay
                 GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
                 mapView.getGraphicsOverlays().add(graphicsOverlay);
 
-                // create a red (0xFFFF0000) simple marker symbol
-                SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.TRIANGLE, 0xFFFF0000, 12);
+                // create picture marker symbol
+                Image flag = new Image("/un/afghanistan/map/img/marker.png");
+                PictureMarkerSymbol markerSymbol = new PictureMarkerSymbol(flag);
+                markerSymbol.setHeight(30);
+                markerSymbol.setWidth(18);
 
-                // create a point
-                Point point = new Point(64.79, 35.92, SpatialReference.create(4326));
+                LocationDAO locationDAO = LocationDAO.getInstance();
 
-                // create a new graphic with a our point and symbol
-                Graphic graphic = new Graphic(point, symbol);
-                graphicsOverlay.getGraphics().add(graphic);
+                // add a marker for every location
+                for (Location l : locationDAO.getLocations()) {
+                    Point graphicPoint = new Point(l.getLongitude(), l.getLatitude(), SpatialReference.create(4326));
+                    Graphic symbolGraphic = new Graphic(graphicPoint, markerSymbol);
+                    graphicsOverlay.getGraphics().add(symbolGraphic);
+                }
             }
         });
         portal.loadAsync();

@@ -48,6 +48,13 @@
             <version>1.7.5</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.32.3.1</version>
+        </dependency>
+
         <!--ArcGIS dependencies -->
         <dependency>
             <groupId>com.esri.arcgisruntime</groupId>
