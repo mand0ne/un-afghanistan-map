@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane fx:id="pane" prefHeight="300.0" prefWidth="300.0" style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="un.afghanistan.map.controllers.AddPointControler">
+   <children>
+      <VBox prefHeight="300.0" prefWidth="300.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="X-Coordinate:" textFill="WHITE">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin></Label>
+                  <TextField>
+                     <HBox.margin>
+                        <Insets left="30.0" />
+                     </HBox.margin></TextField>
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="Y-Coordinate:" textFill="WHITE">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextField>
+                     <HBox.margin>
+                        <Insets left="30.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children></HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="95.0" prefWidth="300.0">
+               <children>
+                  <Label text="Name: " textFill="WHITE">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextField>
+                     <HBox.margin>
+                        <Insets left="65.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children></HBox>
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Button mnemonicParsing="false" prefWidth="60.0" text="Add">
+                     <HBox.margin>
+                        <Insets left="30.0" right="30.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" prefWidth="60.0" text="Cancel">
+                     <HBox.margin>
+                        <Insets left="30.0" right="30.0" />
+                     </HBox.margin>
+                  </Button>
+               </children></HBox>
+         </children>
+      </VBox>
+   </children>
+</Pane>
