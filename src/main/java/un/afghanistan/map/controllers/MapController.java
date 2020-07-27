@@ -68,21 +68,16 @@ public class MapController {
                 setText(item);
             }
         }
-
     }
 
     @FXML
     public void initialize() {
 
         comboBox.getItems().removeAll(comboBox.getItems());
-        comboBox.getItems().addAll("Charted Territory Map", "Dark Gray Canvas", "Light Gray Canvas", "Imagery", "Imagery Hybrid", "National Geographic", "Navigation", "Navigation (Dark mode)", "Newspaper Map", "OpenStreetMap", "Streets", "Streets (Night)", "Terrain with Labels", "Topographic");
+        comboBox.getItems().addAll("Charted Territory Map", "Dark Gray Canvas", "Light Gray Canvas", "Imagery", "Imagery Hybrid",
+                "National Geographic", "Navigation", "Navigation (Dark mode)", "Newspaper Map",
+                "OpenStreetMap", "Streets", "Streets (Night)", "Terrain with Labels", "Topographic");
         comboBox.setCellFactory(c -> new BasemapListCell());
-
-        // ovo za sad nek stoji dok ne popravimo ono
-        Basemap.Type[] values = Basemap.Type.values();
-        for (int i=0; i<values.length; i++) {
-            System.out.println(values[i]);
-        }
 
         editPointBtn.setDisable(true);
         addPointBtn.setDisable(false);
@@ -107,6 +102,7 @@ public class MapController {
                     }
                 }
             };
+
             cell.setOnMouseClicked(e -> {
                 if (!cell.isEmpty()) {
                     System.out.println("You clicked on cell");
