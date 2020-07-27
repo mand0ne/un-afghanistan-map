@@ -1,6 +1,8 @@
 package un.afghanistan.map.utility.database;
 
-import java.io.File;
+import un.afghanistan.map.interfaces.UpdateMapInterface;
+import un.afghanistan.map.models.Location;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.*;
@@ -9,12 +11,17 @@ import java.util.Scanner;
 
 public class LocationDAO {
     private static LocationDAO instance = null;
-    private PreparedStatement getLocations, addLocation, editLocation;
+    private PreparedStatement getLocations, addLocation, editLocation, fetchLatestLocation;
     private Connection conn;
+    private UpdateMapInterface updateMapInterface;
+
+    public void setUpdateMapInterface(UpdateMapInterface updateMapInterface) {
+        this.updateMapInterface = updateMapInterface;
+    }
 
     private LocationDAO() {
         try {
-            conn = DriverManager.getConnection("jdbc:sqlite::resource:un/afghanistan/map/database/database.db");
+            conn = DriverManager.getConnection("jdbc:sqlite:database.db");
             prepareStatements();
         } catch (SQLException e) {
             regenerateDatabase();
@@ -39,6 +46,7 @@ public class LocationDAO {
                         stmt.execute(sqlUpit);
                         sqlUpit = "";
                     } catch (SQLException e) {
+                        System.out.println(conn == null);
                         e.printStackTrace();
                     }
                 }
@@ -53,6 +61,7 @@ public class LocationDAO {
         getLocations = conn.prepareStatement("SELECT id, name, latitude, longitude FROM location");
         addLocation = conn.prepareStatement("INSERT INTO location (name, latitude, longitude) VALUES (?,?,?);");
         //editLocation = conn.prepareStatement("UPDATE ...");
+        fetchLatestLocation = conn.prepareStatement("SELECT max(id) FROM location");
     }
 
     public static LocationDAO getInstance() {
@@ -77,7 +86,8 @@ public class LocationDAO {
         try {
             ResultSet result = getLocations.executeQuery();
             while (result.next()) {
-                Location location = new Location(result.getInt(1), result.getString(2), result.getDouble(3), result.getDouble(4));
+                Location location = new Location(result.getInt(1), result.getString(2), result.getDouble(3),
+                        result.getDouble(4));
                 System.out.println(location.getId() + " " + location.getName());
                 locations.add(location);
             }
@@ -94,6 +104,14 @@ public class LocationDAO {
             addLocation.setDouble(2, latitude);
             addLocation.setDouble(3, longitude);
             addLocation.executeUpdate();
+
+            ResultSet result = fetchLatestLocation.executeQuery();
+            int latestId = result.getInt(1);
+            while (result.next()) {
+                latestId = result.getInt(1);
+            }
+
+            updateMapInterface.onMapUpdateRequest(new Location(latestId, name, latitude, longitude));
         } catch (SQLException e) {
             e.printStackTrace();
         }

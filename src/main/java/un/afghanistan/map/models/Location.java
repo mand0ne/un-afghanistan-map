@@ -1,4 +1,4 @@
-package un.afghanistan.map.utility.database;
+package un.afghanistan.map.models;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;

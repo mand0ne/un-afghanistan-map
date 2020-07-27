@@ -14,7 +14,6 @@ import com.esri.arcgisruntime.portal.PortalItem;
 import com.esri.arcgisruntime.security.UserCredential;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
@@ -28,17 +27,17 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import un.afghanistan.map.gui.BasemapListCell;
+import un.afghanistan.map.interfaces.UpdateMapInterface;
 import un.afghanistan.map.utility.FXMLUtils;
-import un.afghanistan.map.utility.database.Location;
+import un.afghanistan.map.models.Location;
 import un.afghanistan.map.utility.database.LocationDAO;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import static javafx.scene.paint.Color.WHITE;
 
 
-public class MapController {
+public class MapController implements UpdateMapInterface {
     @FXML
     private StackPane centerPane;
     @FXML
@@ -54,9 +53,11 @@ public class MapController {
     private ArcGISMap map;
     private ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphics;
     private Graphic selectedGraphic = new Graphic();
+    private GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
   
     public MapController(MapView mapView) {
         this.mapView = mapView;
+        LocationDAO.getInstance().setUpdateMapInterface(this);
     }
 
     @FXML
@@ -132,7 +133,6 @@ public class MapController {
         resetViewpoint();
 
         // Create a graphic overlay
-        GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
         mapView.getGraphicsOverlays().add(graphicsOverlay);
 
         // Create picture marker symbol
@@ -308,4 +308,18 @@ public class MapController {
         }
     }
 
+
+    @Override
+    public void onMapUpdateRequest(Location location) {
+        locationListView.getItems().add(location);
+
+        // Create picture marker symbol
+        Image flag = new Image("/un/afghanistan/map/img/marker.png");
+        PictureMarkerSymbol markerSymbol = new PictureMarkerSymbol(flag);
+        markerSymbol.setHeight(30);
+        markerSymbol.setWidth(18);
+        Point graphicPoint = new Point(location.getLongitude(), location.getLatitude(), SpatialReference.create(4326));
+        Graphic symbolGraphic = new Graphic(graphicPoint, markerSymbol);
+        graphicsOverlay.getGraphics().add(symbolGraphic);
+    }
 }
