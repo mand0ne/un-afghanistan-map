@@ -54,7 +54,7 @@ public class MapController {
     private ArcGISMap map;
     private ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphics;
     private Graphic selectedGraphic = new Graphic();
-
+  
     public MapController(MapView mapView) {
         this.mapView = mapView;
     }
@@ -250,7 +250,6 @@ public class MapController {
             e.printStackTrace();
         }
     }
-
 
     public void addPointAction() {
         Stage stage = new Stage();

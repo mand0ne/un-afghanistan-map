@@ -1,5 +1,27 @@
 package un.afghanistan.map.controllers;
 
+import javafx.event.ActionEvent;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import un.afghanistan.map.utility.database.LocationDAO;
+
+import java.io.Console;
+
 public class AddPointControler {
+    public Button addBtn;
+    public Button cancelBtn;
+    public TextField longitudeTextField;
+    public TextField latitudeTextField;
+    public TextField nameTextField;
     private MapController mapController;
+    private LocationDAO database = LocationDAO.getInstance();
+
+    public void addButtonAction(ActionEvent actionEvent) {
+        database.addLocation(nameTextField.getText(), Double.parseDouble(latitudeTextField.getText()), Double.parseDouble(longitudeTextField.getText()));
+        addBtn.getScene().getWindow().hide();
+    }
+
+    public void cancelButtonAction(ActionEvent actionEvent) {
+        cancelBtn.getScene().getWindow().hide();
+    }
 }
