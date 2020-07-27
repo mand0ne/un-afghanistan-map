@@ -27,13 +27,15 @@ import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
+import un.afghanistan.map.controllers.MapController;
 import un.afghanistan.map.utility.FXMLUtils;
 import un.afghanistan.map.utility.StageUtils;
 
 public class App extends Application {
 
     public static Stage primaryStage;
-
+    private MapView mapView = new MapView();
     public static void main(String[] args) {
         Application.launch(args);
     }
@@ -46,7 +48,7 @@ public class App extends Application {
         StageUtils.setStage(primaryStage, "UN Afghanistan Map", false, StageStyle.DECORATED, null);
         primaryStage.getIcons().add(new Image("/un/afghanistan/map/img/unLogo.png"));
         StageUtils.centerStage(primaryStage, 1300, 800);
-        primaryStage.setScene(new Scene(FXMLUtils.loadController("fxml/map.fxml")));
+        primaryStage.setScene(new Scene(FXMLUtils.loadCustomController("fxml/map.fxml", c -> new MapController(mapView))));
         primaryStage.show();
     }
 
@@ -57,6 +59,10 @@ public class App extends Application {
     public void stop() {
         try {
             super.stop();
+
+            if(mapView != null)
+                mapView.dispose();
+
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -3,12 +3,16 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -63,15 +67,29 @@
                      <children>
                         <ToolBar style="-fx-background-color: #123456;">
                           <items>
-                              <JFXButton fx:id="addPointBtn" onAction="#addPointAction" prefWidth="75.0" style="-fx-background-color: white;" text="Add" textAlignment="CENTER" textFill="#123456">
+                              <JFXButton fx:id="addPointBtn" alignment="CENTER" onAction="#addPointAction" prefWidth="75.0" style="-fx-background-color: white;" text="Add" textAlignment="CENTER" textFill="#123456">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
+                                 <graphic>
+                                    <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../img/addIcon.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
                               </JFXButton>
-                              <JFXButton layoutX="10.0" layoutY="24.0" prefWidth="75.0" style="-fx-background-color: white;" text="Edit" textAlignment="CENTER" textFill="#123456">
+                              <JFXButton fx:id="editPointBtn" alignment="CENTER" disable="true" layoutX="10.0" layoutY="24.0" prefWidth="75.0" style="-fx-background-color: white;" text="Edit" textAlignment="CENTER" textFill="#123456">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
+                                 <graphic>
+                                    <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../img/editIcon.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
                               </JFXButton>
                               <JFXToggleButton prefHeight="25.0" text="Kabul map" textFill="WHITE" />
                           </items>
@@ -79,7 +97,20 @@
                               <Insets />
                            </GridPane.margin>
                         </ToolBar>
-                        <ComboBox fx:id="comboBox" nodeOrientation="RIGHT_TO_LEFT" onAction="#basemapStyleChanged" prefWidth="150.0" promptText="Basemap style" visibleRowCount="5" GridPane.columnIndex="1" />
+                        <ButtonBar buttonMinWidth="75.0" buttonOrder="" nodeOrientation="RIGHT_TO_LEFT" GridPane.columnIndex="1">
+                           <buttons>
+                              <ComboBox fx:id="comboBox" maxWidth="125.0" nodeOrientation="RIGHT_TO_LEFT" onAction="#changeBasemapStyle" prefHeight="30.0" prefWidth="125.0" promptText="Basemap style" style="-fx-background-color: WHITE;" visibleRowCount="5" />
+                              <JFXButton fx:id="resetViewpointButton" alignment="CENTER" maxWidth="75.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#resetViewpoint" prefHeight="30.0" prefWidth="75.0" style="-fx-background-color: WHITE;" text="Reset" textFill="#123456">
+                                 <graphic>
+                                    <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../img/resetPosition.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                              </JFXButton>
+                           </buttons>
+                        </ButtonBar>
                      </children>
                   </GridPane>
                </children>
@@ -91,17 +122,25 @@
       </VBox>
    </top>
    <left>
-      <ListView mouseTransparent="true" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ListView fx:id="locationListView" mouseTransparent="false" prefWidth="200.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
-            <Insets bottom="25.0" left="15.0" top="25.0" />
+            <Insets bottom="25.0" left="15.0" top="30.0" />
          </BorderPane.margin>
       </ListView>
    </left>
    <center>
-      <StackPane fx:id="centerPane" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
+      <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: WHITE;" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="locationLabel" prefWidth="1055.0" style="-fx-background-color: #123456;" text="Current location" textFill="WHITE">
+               <font>
+                  <Font name="Arial Bold" size="12.0" />
+               </font>
+            </Label>
+            <StackPane fx:id="centerPane" prefHeight="635.0" style="-fx-background-color: white;" />
+         </children>
          <BorderPane.margin>
-            <Insets bottom="25.0" left="15.0" right="15.0" top="25.0" />
+            <Insets bottom="25.0" left="15.0" right="15.0" top="15.0" />
          </BorderPane.margin>
-      </StackPane>
+      </VBox>
    </center>
 </BorderPane>
