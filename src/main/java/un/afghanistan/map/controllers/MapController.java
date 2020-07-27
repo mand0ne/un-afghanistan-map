@@ -79,6 +79,7 @@ public class MapController {
             setText(null);
             if(item!=null){
                 ImageView imageView = new ImageView(new Image("/un/afghanistan/map/img/basemap-styles/" + item + ".png"));
+
                 imageView.setFitWidth(60);
                 imageView.setFitHeight(40);
                 setGraphic(imageView);

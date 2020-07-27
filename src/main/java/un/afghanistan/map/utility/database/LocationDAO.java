@@ -51,7 +51,7 @@ public class LocationDAO {
 
     private void prepareStatements() throws SQLException {
         getLocations = conn.prepareStatement("SELECT id, name, latitude, longitude FROM location");
-        //addLocation  = conn.prepareStatement("INSERT INTO ...");
+        addLocation = conn.prepareStatement("INSERT INTO location (name, latitude, longitude) VALUES (?,?,?);");
         //editLocation = conn.prepareStatement("UPDATE ...");
     }
 
@@ -78,6 +78,7 @@ public class LocationDAO {
             ResultSet result = getLocations.executeQuery();
             while (result.next()) {
                 Location location = new Location(result.getInt(1), result.getString(2), result.getDouble(3), result.getDouble(4));
+                System.out.println(location.getId() + " " + location.getName());
                 locations.add(location);
             }
         } catch (SQLException e) {
@@ -85,5 +86,16 @@ public class LocationDAO {
         }
 
         return locations;
+    }
+
+    public void addLocation(String name, double latitude, double longitude) {
+        try {
+            addLocation.setString(1, name);
+            addLocation.setDouble(2, latitude);
+            addLocation.setDouble(3, longitude);
+            addLocation.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
