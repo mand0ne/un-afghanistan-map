@@ -99,8 +99,8 @@
                         </ToolBar>
                         <ButtonBar buttonMinWidth="75.0" buttonOrder="" nodeOrientation="RIGHT_TO_LEFT" GridPane.columnIndex="1">
                            <buttons>
-                              <ComboBox fx:id="comboBox" nodeOrientation="RIGHT_TO_LEFT" onAction="#basemapStyleChanged" prefHeight="30.0" promptText="Basemap style" style="-fx-background-color: WHITE;" visibleRowCount="5" />
-                              <JFXButton alignment="CENTER" maxWidth="75.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="30.0" prefWidth="75.0" style="-fx-background-color: WHITE;" text="Reset" textFill="#123456">
+                              <ComboBox fx:id="comboBox" maxWidth="125.0" nodeOrientation="RIGHT_TO_LEFT" onAction="#basemapStyleChanged" prefHeight="30.0" prefWidth="125.0" promptText="Basemap style" style="-fx-background-color: WHITE;" visibleRowCount="5" />
+                              <JFXButton fx:id="resetViewpointButton" alignment="CENTER" maxWidth="75.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#resetViewpoint" prefHeight="30.0" prefWidth="75.0" style="-fx-background-color: WHITE;" text="Reset" textFill="#123456">
                                  <graphic>
                                     <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
