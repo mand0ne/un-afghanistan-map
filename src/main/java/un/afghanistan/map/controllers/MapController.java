@@ -1,13 +1,8 @@
 package un.afghanistan.map.controllers;
 
-import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.geometry.Point;
-import com.esri.arcgisruntime.geometry.Polygon;
 import com.esri.arcgisruntime.geometry.SpatialReference;
-import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.loadable.LoadStatus;
-import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent;
-import com.esri.arcgisruntime.loadable.LoadStatusChangedListener;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.Viewpoint;
@@ -15,41 +10,23 @@ import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.portal.Portal;
-import com.esri.arcgisruntime.portal.PortalInfo;
 import com.esri.arcgisruntime.portal.PortalItem;
-import com.esri.arcgisruntime.portal.PortalUser;
-import com.esri.arcgisruntime.security.CredentialChangedEvent;
-import com.esri.arcgisruntime.security.CredentialChangedListener;
 import com.esri.arcgisruntime.security.UserCredential;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
-import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
-import com.esri.arcgisruntime.symbology.TextSymbol;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import un.afghanistan.map.utility.database.Location;
 import un.afghanistan.map.utility.database.LocationDAO;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import un.afghanistan.map.utility.FXMLUtils;
-
-
-import java.awt.*;
-import java.io.IOException;
-import java.util.Map;
-
-import static javafx.scene.control.PopupControl.USE_COMPUTED_SIZE;
 
 
 public class MapController {
@@ -59,6 +36,12 @@ public class MapController {
     private StackPane centerPane;
     @FXML
     private ComboBox<String> comboBox;
+    @FXML
+    private ListView<Location> locationListView;
+    @FXML
+    private Button editPointBtn;
+    @FXML
+    private Button addPointBtn;
 
     private MapView mapView;
     private ArcGISMap map;
@@ -95,10 +78,52 @@ public class MapController {
         comboBox.getItems().addAll("Charted Territory Map", "Dark Gray Canvas", "Light Gray Canvas", "Imagery", "Imagery Hybrid", "National Geographic", "Navigation", "Navigation (Dark mode)", "Newspaper Map", "OpenStreetMap", "Streets", "Streets (Night)", "Terrain with Labels", "Topographic");
         comboBox.setCellFactory(c -> new BasemapListCell());
 
+        // ovo za sad nek stoji dok ne popravimo ono
         Basemap.Type[] values = Basemap.Type.values();
         for (int i=0; i<values.length; i++) {
             System.out.println(values[i]);
         }
+
+        editPointBtn.setDisable(true);
+        addPointBtn.setDisable(false);
+
+        // cutomize listview
+        locationListView.setCellFactory(lv -> {
+
+            ListCell<Location> cell = new ListCell<Location>() {
+                @Override
+                protected void updateItem(Location l, boolean empty) {
+                    super.updateItem(l, empty);
+
+                    if (empty || l == null || l.getName() == null) {
+                        setText(null);
+                        setGraphic(null);
+                    } else {
+                        setText(l.getName());
+                        ImageView imageView = new ImageView(new Image("/un/afghanistan/map/img/marker.png"));
+                        imageView.setFitWidth(15);
+                        imageView.setFitHeight(25);
+                        setGraphic(imageView);
+                    }
+                }
+            };
+            cell.setOnMouseClicked(e -> {
+                if (!cell.isEmpty()) {
+                    System.out.println("You clicked on cell");
+                    Location l = cell.getItem();
+                    System.out.println(l.getName());
+                    Viewpoint viewpoint = new Viewpoint(l.getLatitude(), l.getLongitude(), 0.83e6);
+                    mapView.setViewpointAsync(viewpoint, 1);
+
+                    editPointBtn.setDisable(false);
+
+                    e.consume();
+                }
+                System.out.println("You clicked on an empty cell");
+            });
+            return cell;
+        });
+
 
         UserCredential credential = new UserCredential("mand0ne", "657feebc6953700d976cc16203d6ed58c2fe3b");
         final Portal portal = new Portal("https://www.arcgis.com");
@@ -130,10 +155,13 @@ public class MapController {
 
                 // add a marker for every location
                 for (Location l : locationDAO.getLocations()) {
+                    locationListView.getItems().add(l);
                     Point graphicPoint = new Point(l.getLongitude(), l.getLatitude(), SpatialReference.create(4326));
                     Graphic symbolGraphic = new Graphic(graphicPoint, markerSymbol);
                     graphicsOverlay.getGraphics().add(symbolGraphic);
                 }
+
+
             }
         });
         portal.loadAsync();

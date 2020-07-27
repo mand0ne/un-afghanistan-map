@@ -68,7 +68,7 @@
                                     <Font size="14.0" />
                                  </font>
                               </JFXButton>
-                              <JFXButton layoutX="10.0" layoutY="24.0" prefWidth="75.0" style="-fx-background-color: white;" text="Edit" textAlignment="CENTER" textFill="#123456">
+                              <JFXButton fx:id="editPointBtn"  layoutX="10.0" layoutY="24.0" prefWidth="75.0" style="-fx-background-color: white;" text="Edit" textAlignment="CENTER" textFill="#123456">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -91,7 +91,7 @@
       </VBox>
    </top>
    <left>
-      <ListView mouseTransparent="true" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ListView fx:id="locationListView" mouseTransparent="false" prefWidth="200.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
             <Insets bottom="25.0" left="15.0" top="25.0" />
          </BorderPane.margin>
