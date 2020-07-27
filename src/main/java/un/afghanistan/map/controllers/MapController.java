@@ -27,6 +27,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import un.afghanistan.map.gui.BasemapListCell;
 import un.afghanistan.map.utility.FXMLUtils;
 import un.afghanistan.map.utility.database.Location;
 import un.afghanistan.map.utility.database.LocationDAO;
@@ -45,32 +46,14 @@ public class MapController {
     @FXML
     private ListView<Location> locationListView;
     @FXML
-    private Button editPointBtn;
-    @FXML
-    private Button addPointBtn;
+    private Button editPointBtn, addPointBtn;
     @FXML
     private Label locationLabel;
 
     private MapView mapView;
     private ArcGISMap map;
-    private GraphicsOverlay graphicsOverlay;
     private ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphics;
     private Graphic selectedGraphic = new Graphic();
-
-    private static class BasemapListCell extends ListCell<String> {
-        protected void updateItem(String item, boolean empty) {
-            super.updateItem(item, empty);
-            setGraphic(null);
-            setText(null);
-            if (item != null) {
-                ImageView imageView = new ImageView(new Image("/un/afghanistan/map/img/basemap-styles/" + item + ".png"));
-                imageView.setFitWidth(60);
-                imageView.setFitHeight(40);
-                setGraphic(imageView);
-                setText(item);
-            }
-        }
-    }
 
     public MapController(MapView mapView) {
         this.mapView = mapView;
@@ -84,9 +67,6 @@ public class MapController {
                 "National Geographic", "Navigation", "Navigation (Dark mode)", "Newspaper Map",
                 "OpenStreetMap", "Streets", "Streets (Night)", "Terrain with Labels", "Topographic");
         comboBox.setCellFactory(c -> new BasemapListCell());
-
-        editPointBtn.setDisable(true);
-        addPointBtn.setDisable(false);
 
         // Cutomize listview
         locationListView.setCellFactory(lv -> {
@@ -120,7 +100,8 @@ public class MapController {
                     editPointBtn.setDisable(false);
                     e.consume();
                 }
-                System.out.println("You clicked on an empty cell");
+                else
+                    System.out.println("You clicked on an empty cell");
             });
             return cell;
         });
@@ -148,6 +129,8 @@ public class MapController {
     }
 
     public void finishLoadiong() {
+        resetViewpoint();
+
         // Create a graphic overlay
         GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
         mapView.getGraphicsOverlays().add(graphicsOverlay);
@@ -168,7 +151,6 @@ public class MapController {
             graphicsOverlay.getGraphics().add(symbolGraphic);
         }
 
-
         // Define listeners
         mapView.setOnMouseMoved(mouseEvent -> {
             try {
@@ -185,7 +167,6 @@ public class MapController {
         });
 
         Callout callout = mapView.getCallout();
-
         mapView.setOnMouseClicked(mouseEvent -> {
             try {
                 if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.isStillSincePress()) {
@@ -215,6 +196,10 @@ public class MapController {
 
     }
 
+    /**
+     * Called when "Reset" button is clicked.
+     * Will reset the Viewpoint to a default Point and scale.
+     */
     public void resetViewpoint(){
         // Latitude, longitude, scale
         Viewpoint viewpoint = new Viewpoint(33.9391, 67.7100, 0.83e7);
@@ -236,7 +221,7 @@ public class MapController {
     }
 
     /**
-     * Indicates when a graphic is clicked by showing an Alert.
+     * Indicates when a graphic is clicked by outlining the symbol/marker associated with the graphic.
      */
     private void createGraphicDialog(Callout callout, Point point) {
 
@@ -266,7 +251,8 @@ public class MapController {
         }
     }
 
-    public void addPointAction(ActionEvent actionEvent) {
+
+    public void addPointAction() {
         Stage stage = new Stage();
         Parent root = null;
         stage.setTitle("Add point");
@@ -275,7 +261,7 @@ public class MapController {
         stage.showAndWait();
     }
 
-    public void basemapStyleChanged() {
+    public void changeBasemapStyle() {
         String style = comboBox.getValue();
         switch (style) {
             case "Dark Gray Canvas":
