@@ -2,6 +2,7 @@ package un.afghanistan.map.controllers;
 
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.geometry.CoordinateFormatter;
+import com.esri.arcgisruntime.geometry.GeometryDimension;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.SpatialReference;
 import com.esri.arcgisruntime.loadable.LoadStatus;
@@ -53,7 +54,8 @@ public class MapController implements UpdateMapInterface {
     private ArcGISMap map;
     private ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphics;
     private Graphic selectedGraphic = new Graphic();
-    private GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
+    private Callout callout;
+    private final GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
   
     public MapController(MapView mapView) {
         this.mapView = mapView;
@@ -90,16 +92,33 @@ public class MapController implements UpdateMapInterface {
                 }
             };
 
-            cell.setOnMouseClicked(e -> {
+            cell.setOnMouseClicked(mouseEvent -> {
                 if (!cell.isEmpty()) {
                     System.out.println("You clicked on cell");
                     Location l = cell.getItem();
                     System.out.println(l.getName());
                     Viewpoint viewpoint = new Viewpoint(l.getLatitude(), l.getLongitude(), 0.83e6);
-                    mapView.setViewpointAsync(viewpoint, 1);
 
-                    editPointBtn.setDisable(false);
-                    e.consume();
+                    // Take 2 seconds to move to viewpoint
+                    final ListenableFuture<Boolean> viewpointSetFuture = mapView.setViewpointAsync(viewpoint, 1);
+                    viewpointSetFuture.addDoneListener(() -> {
+                        try {
+                            boolean completed = viewpointSetFuture.get();
+                            if (completed) {
+                                editPointBtn.setDisable(false);
+
+                                Point mapPoint = new Point(l.getLongitude(), l.getLatitude(), SpatialReference.create(4326));
+                                Point2D screenPoint = mapView.locationToScreen(mapPoint);
+                                // Identify graphics on the graphics overlay
+                                identifyGraphics = mapView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 5, false);
+                                identifyGraphics.addDoneListener(() -> Platform.runLater(() -> createGraphicDialog(mapPoint, l)));
+                            }
+                            else
+                                System.out.println("Animation not completed successfully");
+                        } catch (Exception e) {
+                            System.out.println("Animation interrupted");
+                        }
+                    });
                 }
                 else
                     System.out.println("You clicked on an empty cell");
@@ -121,7 +140,7 @@ public class MapController implements UpdateMapInterface {
                 mapView.setMap(map);
                 centerPane.getChildren().add(mapView);
 
-                finishLoadiong();
+                finishLoading();
             } else
                 portal.retryLoadAsync();
         });
@@ -129,7 +148,7 @@ public class MapController implements UpdateMapInterface {
         portal.loadAsync();
     }
 
-    public void finishLoadiong() {
+    public void finishLoading() {
         resetViewpoint();
 
         // Create a graphic overlay
@@ -166,25 +185,23 @@ public class MapController implements UpdateMapInterface {
             }
         });
 
-        Callout callout = mapView.getCallout();
+        callout = mapView.getCallout();
+        // Set the callout's details
+        callout.setTitleColor(WHITE);
+        callout.setDetailColor(WHITE);
+        callout.setBackgroundColor(Paint.valueOf("#123456"));
+
         mapView.setOnMouseClicked(mouseEvent -> {
             try {
                 if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.isStillSincePress()) {
 
                     // Create a point from location clicked
-                    Point2D mousePoint = new Point2D(mouseEvent.getX(), mouseEvent.getY());
-                    Point mapPoint = mapView.screenToLocation(mousePoint);
-
-                    // Set the callout's details
-                    callout.setTitleColor(WHITE);
-                    callout.setDetailColor(WHITE);
-                    callout.setBackgroundColor(Paint.valueOf("#123456"));
-                    callout.setTitle("Information about the location");
-                    callout.setDetail("Sta ovdje");
+                    Point2D screenPoint = new Point2D(mouseEvent.getX(), mouseEvent.getY());
+                    Point mapPoint = mapView.screenToLocation(screenPoint);
 
                     // Identify graphics on the graphics overlay
-                    identifyGraphics = mapView.identifyGraphicsOverlayAsync(graphicsOverlay, mousePoint, 5, false);
-                    identifyGraphics.addDoneListener(() -> Platform.runLater(() -> createGraphicDialog(callout, mapPoint)));
+                    identifyGraphics = mapView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 5, false);
+                    identifyGraphics.addDoneListener(() -> Platform.runLater(() -> createGraphicDialog(mapPoint, null)));
                 } else if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.isStillSincePress())
                     callout.dismiss();
 
@@ -203,27 +220,15 @@ public class MapController implements UpdateMapInterface {
     public void resetViewpoint(){
         // Latitude, longitude, scale
         Viewpoint viewpoint = new Viewpoint(33.9391, 67.7100, 0.83e7);
-
         // Take 2 seconds to move to viewpoint
-        final ListenableFuture<Boolean> viewpointSetFuture = mapView.setViewpointAsync(viewpoint, 2);
-        viewpointSetFuture.addDoneListener(() -> {
-            try {
-                boolean completed = viewpointSetFuture.get();
-                if (completed) {
-                    System.out.println("Animation completed successfully");
-                }
-                else
-                    System.out.println("Animation not completed successfully");
-            } catch (Exception e) {
-                System.out.println("Animation interrupted");
-            }
-        });
+        mapView.setViewpointAsync(viewpoint, 2);
     }
+
 
     /**
      * Indicates when a graphic is clicked by outlining the symbol/marker associated with the graphic.
      */
-    private void createGraphicDialog(Callout callout, Point point) {
+    private void createGraphicDialog(Point mapPoint, Location selectedLocation) {
 
         try {
             // Get the list of graphics returned by identify
@@ -232,18 +237,33 @@ public class MapController implements UpdateMapInterface {
 
             if (!graphics.isEmpty()) {
                 Graphic hoveredGraphic = graphics.get(0);
-                hoveredGraphic.setSelected(!hoveredGraphic.isSelected());
+                if(hoveredGraphic.getGeometry().getDimension().equals(GeometryDimension.POINT) && selectedLocation == null){
+                    selectedLocation = LocationDAO.getInstance().getGetSelectedLocation(
+                            ((Point)(hoveredGraphic.getGeometry())).getY(), ((Point)(hoveredGraphic.getGeometry())).getX());
+                    System.out.println(selectedLocation);
+                    locationListView.getSelectionModel().select(selectedLocation);
+                    editPointBtn.setDisable(false);
+                }
+
+                // Show the callout where the user clicked
+                callout.setTitle(selectedLocation.getName());
+                callout.setDetail(selectedLocation.toString());
+                callout.showCalloutAt(mapPoint, new Duration(500));
+
+                hoveredGraphic.setSelected(true);
                 if (hoveredGraphic != selectedGraphic) {
                     selectedGraphic.setSelected(false);
                     selectedGraphic = hoveredGraphic;
                 }
 
-                // Show the callout where the user clicked
-                callout.showCalloutAt(point, new Duration(500));
+                System.out.println("POZVOSAMSE");
             } else {
                 selectedGraphic.setSelected(false);
                 selectedGraphic = new Graphic();
                 callout.dismiss();
+                editPointBtn.setDisable(true);
+                System.out.println("KURCINA");
+                locationListView.getSelectionModel().clearSelection();
             }
         } catch (Exception e) {
             // on any error, display the stack trace
