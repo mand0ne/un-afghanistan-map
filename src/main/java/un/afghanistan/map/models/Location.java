@@ -4,6 +4,8 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.util.Objects;
+
 public class Location {
     private SimpleIntegerProperty id       = new SimpleIntegerProperty(0);
     private SimpleStringProperty name      = new SimpleStringProperty("");
@@ -65,5 +67,26 @@ public class Location {
 
     public void setLongitude(double longitude) {
         this.longitude.set(longitude);
+    }
+
+    @Override
+    public String toString() {
+        return getName() + " " + getLatitude() + " " + getLongitude();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Location location = (Location) o;
+        return getId() == location.getId() &&
+                getName().equals(location.getName()) &&
+                getLatitude() == location.getLatitude() &&
+                getLongitude() == location.getLongitude();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getLatitude(), getLongitude());
     }
 }

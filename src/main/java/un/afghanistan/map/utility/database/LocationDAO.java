@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class LocationDAO {
     private static LocationDAO instance = null;
-    private PreparedStatement getLocations, addLocation, editLocation, fetchLatestLocation;
+    private PreparedStatement getLocations, addLocation, editLocation, fetchLatestLocation, getSelectedLocation;
     private Connection conn;
     private UpdateMapInterface updateMapInterface;
 
@@ -40,7 +40,7 @@ public class LocationDAO {
             String sqlUpit = "";
             while (ulaz.hasNext()) {
                 sqlUpit += ulaz.nextLine();
-                if ( sqlUpit.charAt( sqlUpit.length()-1 ) == ';') {
+                if (sqlUpit.charAt(sqlUpit.length() - 1) == ';') {
                     try {
                         Statement stmt = conn.createStatement();
                         stmt.execute(sqlUpit);
@@ -62,6 +62,7 @@ public class LocationDAO {
         addLocation = conn.prepareStatement("INSERT INTO location (name, latitude, longitude) VALUES (?,?,?);");
         //editLocation = conn.prepareStatement("UPDATE ...");
         fetchLatestLocation = conn.prepareStatement("SELECT max(id) FROM location");
+        getSelectedLocation = conn.prepareStatement("SELECT * FROM location WHERE latitude = ? AND longitude = ?");
     }
 
     public static LocationDAO getInstance() {
@@ -107,13 +108,32 @@ public class LocationDAO {
 
             ResultSet result = fetchLatestLocation.executeQuery();
             int latestId = result.getInt(1);
-            while (result.next()) {
+            while (result.next())
                 latestId = result.getInt(1);
-            }
 
             updateMapInterface.onMapUpdateRequest(new Location(latestId, name, latitude, longitude));
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public Location getGetSelectedLocation(double lat, double lon) {
+        Location location = new Location();
+
+        try {
+            getSelectedLocation.setDouble(1, lat);
+            getSelectedLocation.setDouble(2, lon);
+            ResultSet result = getSelectedLocation.executeQuery();
+            while (result.next()) {
+                location = new Location(result.getInt(1), result.getString(2), result.getDouble(3),
+                        result.getDouble(4));
+
+                System.out.println(location.getId() + " " + location.getName());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return location;
     }
 }
