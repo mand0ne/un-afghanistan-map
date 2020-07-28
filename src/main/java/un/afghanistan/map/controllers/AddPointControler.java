@@ -16,12 +16,16 @@ public class AddPointControler {
     private MapController mapController;
     private LocationDAO database = LocationDAO.getInstance();
 
-    public void addButtonAction() {
-        database.addLocation(nameTextField.getText(), Double.parseDouble(latitudeTextField.getText()), Double.parseDouble(longitudeTextField.getText()));
+    private void closeWindow() {
         addBtn.getScene().getWindow().hide();
     }
 
+    public void addButtonAction() {
+        database.addLocation(nameTextField.getText(), Double.parseDouble(latitudeTextField.getText()), Double.parseDouble(longitudeTextField.getText()));
+        closeWindow();
+    }
+
     public void cancelButtonAction() {
-        cancelBtn.getScene().getWindow().hide();
+        closeWindow();
     }
 }

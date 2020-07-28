@@ -60,7 +60,7 @@ public class LocationDAO {
     private void prepareStatements() throws SQLException {
         getLocations = conn.prepareStatement("SELECT id, name, latitude, longitude FROM location");
         addLocation = conn.prepareStatement("INSERT INTO location (name, latitude, longitude) VALUES (?,?,?);");
-        //editLocation = conn.prepareStatement("UPDATE ...");
+        editLocation = conn.prepareStatement("UPDATE location set name=?, longitude=?, latitude=? where id = ?");
         deleteLocation = conn.prepareStatement("DELETE FROM location WHERE id = ?");
         fetchLatestLocation = conn.prepareStatement("SELECT max(id) FROM location");
         getSelectedLocation = conn.prepareStatement("SELECT * FROM location WHERE latitude = ? AND longitude = ?");
@@ -125,6 +125,20 @@ public class LocationDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void editLocation(Location location) {
+        try {
+            editLocation.setString(1, location.getName());
+            editLocation.setDouble(2, location.getLongitude());
+            editLocation.setDouble(3, location.getLatitude());
+            editLocation.setInt(4, location.getId());
+            editLocation.executeUpdate();
+            updateMapInterface.onMapUpdateRequest(new Location(location.getId(), location.getName(), location.getLatitude(), location.getLongitude()));
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
     }
 
     public Location getGetSelectedLocation(double lat, double lon) {
