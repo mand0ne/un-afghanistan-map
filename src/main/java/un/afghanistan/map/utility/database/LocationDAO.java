@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class LocationDAO {
     private static LocationDAO instance = null;
-    private PreparedStatement getLocations, addLocation, editLocation, fetchLatestLocation, getSelectedLocation;
+    private PreparedStatement addLocation, editLocation, deleteLocation, getLocations, fetchLatestLocation, getSelectedLocation;
     private Connection conn;
     private UpdateMapInterface updateMapInterface;
 
@@ -61,6 +61,7 @@ public class LocationDAO {
         getLocations = conn.prepareStatement("SELECT id, name, latitude, longitude FROM location");
         addLocation = conn.prepareStatement("INSERT INTO location (name, latitude, longitude) VALUES (?,?,?);");
         //editLocation = conn.prepareStatement("UPDATE ...");
+        deleteLocation = conn.prepareStatement("DELETE FROM location WHERE id = ?");
         fetchLatestLocation = conn.prepareStatement("SELECT max(id) FROM location");
         getSelectedLocation = conn.prepareStatement("SELECT * FROM location WHERE latitude = ? AND longitude = ?");
     }
@@ -112,6 +113,15 @@ public class LocationDAO {
                 latestId = result.getInt(1);
 
             updateMapInterface.onMapUpdateRequest(new Location(latestId, name, latitude, longitude));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteLocation(int id) {
+        try {
+            deleteLocation.setInt(1, id);
+            deleteLocation.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
