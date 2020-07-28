@@ -15,7 +15,9 @@ import com.esri.arcgisruntime.portal.PortalItem;
 import com.esri.arcgisruntime.security.UserCredential;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -33,8 +35,10 @@ import un.afghanistan.map.utility.FXMLUtils;
 import un.afghanistan.map.models.Location;
 import un.afghanistan.map.utility.database.LocationDAO;
 
+import java.io.IOException;
 import java.util.List;
 
+import static javafx.scene.control.PopupControl.USE_COMPUTED_SIZE;
 import static javafx.scene.paint.Color.WHITE;
 
 
@@ -280,7 +284,19 @@ public class MapController implements UpdateMapInterface {
         stage.showAndWait();
     }
 
-    public void changeBasemapStyle() {
+    public void editButtonAction(ActionEvent actionEvent) throws IOException {
+        Stage stage = new Stage();
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/un/afghanistan/map/fxml/editPoint.fxml"));
+        EditPointControler editPointControler = new EditPointControler(locationListView.getSelectionModel().getSelectedItem());
+        editPointControler.setController(this);
+        fxmlLoader.setController(editPointControler);
+        Parent root = fxmlLoader.load();
+        stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
+        stage.setResizable(false);;
+        stage.showAndWait();
+    }
+
+        public void changeBasemapStyle() {
         String style = comboBox.getValue();
         switch (style) {
             case "Dark Gray Canvas":
@@ -342,4 +358,6 @@ public class MapController implements UpdateMapInterface {
         Graphic symbolGraphic = new Graphic(graphicPoint, markerSymbol);
         graphicsOverlay.getGraphics().add(symbolGraphic);
     }
+
+
 }
