@@ -25,8 +25,8 @@ import javafx.stage.Stage;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import javafx.stage.StageStyle;
 import un.afghanistan.map.controllers.MapController;
-import un.afghanistan.map.utility.FXMLUtils;
-import un.afghanistan.map.utility.StageUtils;
+import un.afghanistan.map.utility.javafx.FXMLUtils;
+import un.afghanistan.map.utility.javafx.StageUtils;
 
 public class App extends Application {
 

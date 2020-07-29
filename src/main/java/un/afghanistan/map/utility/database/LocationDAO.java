@@ -23,10 +23,12 @@ public class LocationDAO {
         try {
             conn = DriverManager.getConnection("jdbc:sqlite:database.db");
             prepareStatements();
+            conn.prepareStatement("PRAGMA foreign_keys = ON").executeUpdate();
         } catch (SQLException e) {
             regenerateDatabase();
             try {
                 prepareStatements();
+                conn.prepareStatement("PRAGMA foreign_keys = ON").executeUpdate();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
@@ -63,7 +65,7 @@ public class LocationDAO {
         editLocation = conn.prepareStatement("UPDATE location set name=?, longitude=?, latitude=? where id = ?");
         deleteLocation = conn.prepareStatement("DELETE FROM location WHERE id = ?");
         fetchLatestLocation = conn.prepareStatement("SELECT max(id) FROM location");
-        getSelectedLocation = conn.prepareStatement("SELECT * FROM location WHERE latitude = ? AND longitude = ?");
+        getSelectedLocation = conn.prepareStatement("SELECT l.id, l.name, l.latitude, l.longitude, f.path FROM location l, file f WHERE l.latitude = ? AND l.longitude = ? AND l.id = f.point_id");
 
         addFile = conn.prepareStatement("INSERT INTO file (path, point_id) VALUES (?, ?)");
         editFile = conn.prepareStatement("UPDATE file SET PATH=? WHERE point_id=?");
@@ -92,7 +94,7 @@ public class LocationDAO {
             ResultSet result = getLocations.executeQuery();
             while (result.next()) {
                 Location location = new Location(result.getInt(1), result.getString(2), result.getDouble(3),
-                        result.getDouble(4), "");
+                        result.getDouble(4), result.getString(5));
                 System.out.println(location.getId() + " " + location.getName());
                 locations.add(location);
             }
@@ -119,41 +121,44 @@ public class LocationDAO {
             addFile.setInt(2, latestId);
             addFile.executeUpdate();
 
-            updateMapInterface.onMapUpdateRequest(new Location(latestId, name, latitude, longitude, filePath));
+            updateMapInterface.onAddLocationRequest(new Location(latestId, name, latitude, longitude, filePath));
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void deleteLocation(int id) {
+    public void deleteLocation(Location location) {
         try {
-            deleteLocation.setInt(1, id);
+            deleteLocation.setInt(1, location.getId());
             deleteLocation.executeUpdate();
+
+            updateMapInterface.onDeleteLocationRequest(location);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void editLocation(Location location) {
+    public void editLocation(Location oldLocation, Location newLocation) {
         try {
-            editLocation.setString(1, location.getName());
-            editLocation.setDouble(2, location.getLongitude());
-            editLocation.setDouble(3, location.getLatitude());
-            editLocation.setInt(4, location.getId());
+            editLocation.setString(1, newLocation.getName());
+            editLocation.setDouble(2, newLocation.getLongitude());
+            editLocation.setDouble(3, newLocation.getLatitude());
+            editLocation.setInt(4, newLocation.getId());
             editLocation.executeUpdate();
 
-            editFile.setString(1, location.getFilePath());
-            editFile.setInt(2, location.getId());
+            editFile.setString(1, newLocation.getFilePath());
+            editFile.setInt(2, newLocation.getId());
             editFile.executeUpdate();
 
-            updateMapInterface.onMapUpdateRequest(new Location(location.getId(), location.getName(), location.getLatitude(), location.getLongitude(), location.getFilePath()));
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            updateMapInterface.onDeleteLocationRequest(oldLocation);
+            updateMapInterface.onAddLocationRequest(newLocation);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
         }
 
     }
 
-    public Location getGetSelectedLocation(double lat, double lon) {
+    public Location getSelectedLocation(double lat, double lon) {
         Location location = new Location();
 
         try {
@@ -162,7 +167,7 @@ public class LocationDAO {
             ResultSet result = getSelectedLocation.executeQuery();
             while (result.next()) {
                 location = new Location(result.getInt(1), result.getString(2), result.getDouble(3),
-                        result.getDouble(4), "");
+                        result.getDouble(4), result.getString(5));
 
                 System.out.println(location.getId() + " " + location.getName());
             }

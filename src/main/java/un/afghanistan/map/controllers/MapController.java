@@ -15,28 +15,38 @@ import com.esri.arcgisruntime.portal.PortalItem;
 import com.esri.arcgisruntime.security.UserCredential;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import un.afghanistan.map.gui.BasemapListCell;
 import un.afghanistan.map.interfaces.UpdateMapInterface;
-import un.afghanistan.map.utility.FXMLUtils;
 import un.afghanistan.map.models.Location;
 import un.afghanistan.map.utility.database.LocationDAO;
+import un.afghanistan.map.utility.javafx.FXMLUtils;
+import un.afghanistan.map.utility.javafx.StageUtils;
 
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static javafx.scene.control.PopupControl.USE_COMPUTED_SIZE;
 import static javafx.scene.paint.Color.WHITE;
@@ -57,10 +67,11 @@ public class MapController implements UpdateMapInterface {
     private MapView mapView;
     private ArcGISMap map;
     private ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphics;
-    private Graphic selectedGraphic = new Graphic();
+    private Graphic previouslySelectedGraphic = new Graphic();
     private Callout callout;
     private final GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
-  
+    private Basemap defaultBasemap;
+
     public MapController(MapView mapView) {
         this.mapView = mapView;
         LocationDAO.getInstance().setUpdateMapInterface(this);
@@ -115,16 +126,14 @@ public class MapController implements UpdateMapInterface {
                                 Point2D screenPoint = mapView.locationToScreen(mapPoint);
                                 // Identify graphics on the graphics overlay
                                 identifyGraphics = mapView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 5, false);
-                                identifyGraphics.addDoneListener(() -> Platform.runLater(() -> createGraphicDialog(mapPoint, l)));
-                            }
-                            else
+                                identifyGraphics.addDoneListener(() -> Platform.runLater(() -> createGraphicDialog(mapPoint, l, mouseEvent.getClickCount())));
+                            } else
                                 System.out.println("Animation not completed successfully");
                         } catch (Exception e) {
                             System.out.println("Animation interrupted");
                         }
                     });
-                }
-                else
+                } else
                     System.out.println("You clicked on an empty cell");
             });
             return cell;
@@ -140,6 +149,8 @@ public class MapController implements UpdateMapInterface {
 
                 // Create a view and set ArcGISMap to it
                 map = new ArcGISMap(mapPortalItem);
+                defaultBasemap = map.getBasemap();
+                System.out.println(defaultBasemap.getName());
                 mapView = new MapView();
                 mapView.setMap(map);
                 centerPane.getChildren().add(mapView);
@@ -191,21 +202,23 @@ public class MapController implements UpdateMapInterface {
 
         callout = mapView.getCallout();
         // Set the callout's details
+        callout.setBackgroundColor(Paint.valueOf("#123456"));
         callout.setTitleColor(WHITE);
         callout.setDetailColor(WHITE);
-        callout.setBackgroundColor(Paint.valueOf("#123456"));
+        callout.setBorderColor(WHITE);
+        callout.setBorderWidth(2);
 
         mapView.setOnMouseClicked(mouseEvent -> {
             try {
+                System.out.println("A KLIKNO SAM GA JARA: " + mouseEvent.getClickCount());
                 if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.isStillSincePress()) {
-
                     // Create a point from location clicked
                     Point2D screenPoint = new Point2D(mouseEvent.getX(), mouseEvent.getY());
                     Point mapPoint = mapView.screenToLocation(screenPoint);
 
                     // Identify graphics on the graphics overlay
                     identifyGraphics = mapView.identifyGraphicsOverlayAsync(graphicsOverlay, screenPoint, 5, false);
-                    identifyGraphics.addDoneListener(() -> Platform.runLater(() -> createGraphicDialog(mapPoint, null)));
+                    identifyGraphics.addDoneListener(() -> Platform.runLater(() -> createGraphicDialog(mapPoint, null, 1)));
                 } else if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.isStillSincePress())
                     callout.dismiss();
 
@@ -215,13 +228,14 @@ public class MapController implements UpdateMapInterface {
             }
         });
 
+
     }
 
     /**
      * Called when "Reset" button is clicked.
      * Will reset the Viewpoint to a default Point and scale.
      */
-    public void resetViewpoint(){
+    public void resetViewpoint() {
         // Latitude, longitude, scale
         Viewpoint viewpoint = new Viewpoint(33.9391, 67.7100, 0.83e7);
         // Take 2 seconds to move to viewpoint
@@ -232,7 +246,7 @@ public class MapController implements UpdateMapInterface {
     /**
      * Indicates when a graphic is clicked by outlining the symbol/marker associated with the graphic.
      */
-    private void createGraphicDialog(Point mapPoint, Location selectedLocation) {
+    private void createGraphicDialog(Point mapPoint, Location selectedLocation, int mouseClickCount) {
 
         try {
             // Get the list of graphics returned by identify
@@ -240,13 +254,14 @@ public class MapController implements UpdateMapInterface {
             List<Graphic> graphics = result.getGraphics();
 
             if (!graphics.isEmpty()) {
-                Graphic hoveredGraphic = graphics.get(0);
-                if(hoveredGraphic.getGeometry().getDimension().equals(GeometryDimension.POINT) && selectedLocation == null){
-                    selectedLocation = LocationDAO.getInstance().getGetSelectedLocation(
-                            ((Point)(hoveredGraphic.getGeometry())).getY(), ((Point)(hoveredGraphic.getGeometry())).getX());
+                Graphic selectedGraphic = graphics.get(0);
+                if (selectedGraphic.getGeometry().getDimension().equals(GeometryDimension.POINT) && selectedLocation == null) {
+                    selectedLocation = LocationDAO.getInstance().getSelectedLocation(
+                            ((Point) (selectedGraphic.getGeometry())).getY(), ((Point) (selectedGraphic.getGeometry())).getX());
                     System.out.println(selectedLocation);
                     locationListView.getSelectionModel().select(selectedLocation);
-                    editPointBtn.setDisable(false);
+                    editPointBtn.setDisable(false);;
+
                 }
 
                 // Show the callout where the user clicked
@@ -254,19 +269,23 @@ public class MapController implements UpdateMapInterface {
                 callout.setDetail(selectedLocation.toString());
                 callout.showCalloutAt(mapPoint, new Duration(500));
 
-                hoveredGraphic.setSelected(true);
-                if (hoveredGraphic != selectedGraphic) {
-                    selectedGraphic.setSelected(false);
-                    selectedGraphic = hoveredGraphic;
+                selectedGraphic.setSelected(true);
+                final String filePath = selectedLocation.getFilePath();
+                callout.setOnMouseClicked(mouseEvent -> openFile(new File(filePath)));
+
+                if(mouseClickCount == 2)
+                    openFile(new File(filePath));
+
+                if (selectedGraphic != previouslySelectedGraphic) {
+                    previouslySelectedGraphic.setSelected(false);
+                    previouslySelectedGraphic = selectedGraphic;
                 }
 
-                System.out.println("POZVOSAMSE");
             } else {
-                selectedGraphic.setSelected(false);
-                selectedGraphic = new Graphic();
+                previouslySelectedGraphic.setSelected(false);
+                previouslySelectedGraphic = new Graphic();
                 callout.dismiss();
                 editPointBtn.setDisable(true);
-                System.out.println("KURCINA");
                 locationListView.getSelectionModel().clearSelection();
             }
         } catch (Exception e) {
@@ -275,37 +294,44 @@ public class MapController implements UpdateMapInterface {
         }
     }
 
-    public void addPointAction() throws IOException {
+    private void openFile(File file) {
+        try {
+            if (file.exists()) {
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().open(file);
+                } else {
+                    System.out.println("Awt Desktop is not supported!");
+                }
+            } else {
+                System.out.println("File does not exist!");
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(AddPointController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void addPointAction() {
         Stage stage = new Stage();
-
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/un/afghanistan/map/fxml/addPoint.fxml"));
-        AddPointController addPointController = new AddPointController();
-        addPointController.setPrimaryStage(stage);
-        fxmlLoader.setController(addPointController);
-
-        Parent root = fxmlLoader.load();
-        stage.setTitle("Add new location");
+        StageUtils.setStage(stage,"Add new location", false, StageStyle.UNDECORATED, Modality.APPLICATION_MODAL);
+        StageUtils.centerStage(stage, 300, 300);
+        Parent root = FXMLUtils.loadCustomController("fxml/addPoint.fxml", c -> new AddPointController(stage));
         stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
         stage.setResizable(false);
         stage.showAndWait();
     }
 
-    public void editButtonAction() throws IOException {
+    public void editButtonAction() {
         Stage stage = new Stage();
-
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/un/afghanistan/map/fxml/editPoint.fxml"));
-        EditPointController editPointController = new EditPointController(locationListView.getSelectionModel().getSelectedItem(), this);
-        editPointController.setPrimaryStage(stage);
-        fxmlLoader.setController(editPointController);
-
-        Parent root = fxmlLoader.load();
-        stage.setTitle("Edit location");
+        StageUtils.setStage(stage,"Edit location", false, StageStyle.UNDECORATED, Modality.APPLICATION_MODAL);
+        StageUtils.centerStage(stage, 300, 300);
+        Parent root = FXMLUtils.loadCustomController("fxml/editPoint.fxml", c -> new EditPointController(stage,
+                locationListView.getSelectionModel().getSelectedItem()));
         stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
-        stage.setResizable(false);;
+        stage.setResizable(false);
         stage.showAndWait();
     }
 
-        public void changeBasemapStyle() {
+    public void changeBasemapStyle() {
         String style = comboBox.getValue();
         switch (style) {
             case "Dark Gray Canvas":
@@ -315,7 +341,7 @@ public class MapController implements UpdateMapInterface {
                 map.setBasemap(Basemap.createLightGrayCanvas());
                 break;
             case "Charted Territory Map":
-                map.setBasemap(Basemap.createTopographicVector()); // NEMA, A OVO JE DEFAULT
+                map.setBasemap(defaultBasemap);
                 break;
             case "Imagery":
                 map.setBasemap(Basemap.createImagery());
@@ -353,9 +379,8 @@ public class MapController implements UpdateMapInterface {
         }
     }
 
-
     @Override
-    public void onMapUpdateRequest(Location location) {
+    public void onAddLocationRequest(Location location) {
         locationListView.getItems().add(location);
 
         // Create picture marker symbol
@@ -368,5 +393,11 @@ public class MapController implements UpdateMapInterface {
         graphicsOverlay.getGraphics().add(symbolGraphic);
     }
 
-
+    @Override
+    public void onDeleteLocationRequest(Location location) {
+        locationListView.getItems().removeAll(location);
+        graphicsOverlay.getGraphics().remove(previouslySelectedGraphic);
+        System.out.println("Sto to sine");
+        callout.dismiss();
+    }
 }

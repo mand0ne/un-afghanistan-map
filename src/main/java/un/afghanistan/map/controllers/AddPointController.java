@@ -1,6 +1,5 @@
 package un.afghanistan.map.controllers;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -9,30 +8,30 @@ import javafx.stage.Stage;
 import un.afghanistan.map.utility.database.LocationDAO;
 
 import java.awt.*;
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AddPointController {
-    public Button addBtn;
-    public Button cancelBtn;
-    public Button browseBtn;
-    public TextField longitudeTextField;
-    public TextField latitudeTextField;
-    public TextField nameTextField;
-    public TextField fileTextField;
-    private MapController mapController;
-    private LocationDAO database = LocationDAO.getInstance();
+    @FXML
+    private Button addBtn;
+    @FXML
+    public TextField longitudeTextField, latitudeTextField, nameTextField, fileTextField;
+
+    private final LocationDAO locationTableService = LocationDAO.getInstance();
 
     private Stage primaryStage;
     final FileChooser fileChooser = new FileChooser();
 
     public AddPointController() {
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.PDF", "*.pdf"));
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx", "*.XLSX"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel & PDF", "*.xlsx", "*.XLSX", "*.PDF", "*.pdf"));
         fileChooser.setTitle("Choose a file");
+    }
+
+    public AddPointController(Stage primaryStage) {
+        this();
+        this.primaryStage = primaryStage;
     }
 
     @FXML
@@ -55,13 +54,6 @@ public class AddPointController {
         });
     }
 
-
-    public void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-    }
-
-
-
     public void addButtonAction() {
         String name = nameTextField.getText();
         String latitude = latitudeTextField.getText();
@@ -69,7 +61,7 @@ public class AddPointController {
         String file = fileTextField.getText();
 
         if (validateInputs(name, latitude, longitude, file)) {
-            database.addLocation(nameTextField.getText(), Double.parseDouble(latitudeTextField.getText()), Double.parseDouble(longitudeTextField.getText()), fileTextField.getText());
+            locationTableService.addLocation(nameTextField.getText(), Double.parseDouble(latitudeTextField.getText()), Double.parseDouble(longitudeTextField.getText()), fileTextField.getText());
             closeWindow();
         }
     }
@@ -111,23 +103,7 @@ public class AddPointController {
         if (file != null) {
             System.out.println(file.getName());
             fileTextField.setText(file.getAbsolutePath());
-            fileTextField.setStyle("-fx-background-color: #e28787;");
-        }
-    }
-
-    private void openFile(File file) {
-        try {
-            if (file.exists()) {
-                if (Desktop.isDesktopSupported()) {
-                    Desktop.getDesktop().open(file);
-                } else {
-                    System.out.println("Awt Desktop is not supported!");
-                }
-            } else {
-                System.out.println("File is not exists!");
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(AddPointController.class.getName()).log(Level.SEVERE, null, ex);
+            fileTextField.setStyle("-fx-background-color: WHITE;");
         }
     }
 

@@ -1,4 +1,4 @@
-package un.afghanistan.map.utility;
+package un.afghanistan.map.utility.javafx;
 
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;

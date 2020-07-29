@@ -1,7 +1,5 @@
 package un.afghanistan.map.controllers;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -11,29 +9,24 @@ import un.afghanistan.map.models.Location;
 import un.afghanistan.map.utility.database.LocationDAO;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
-import java.util.Map;
 
 public class EditPointController {
-    public Button deleteBtn;
-    public Button saveBtn;
-    public Button cancelBtn;
-    public Button browseBtn;
-    public TextField latitudeTextField;
-    public TextField longitudeTextField;
-    public TextField nameTextField;
-    public TextField fileTextField;
-    private Location location;
-    private MapController mapController;
-    private LocationDAO database = LocationDAO.getInstance();
+    @FXML
+    private Button deleteBtn;
+    @FXML
+    private TextField latitudeTextField, longitudeTextField, nameTextField, fileTextField;
 
-    private Stage primaryStage;
-    final FileChooser fileChooser = new FileChooser();
+    private final Location location;
+    private final LocationDAO locationTableService = LocationDAO.getInstance();
+    private final Stage primaryStage;
+    private final FileChooser fileChooser = new FileChooser();
 
-    public EditPointController(Location location, MapController mapController) {
+    public EditPointController(Stage primaryStage, Location location) {
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel & PDF", "*.xlsx", "*.XLSX", "*.PDF", "*.pdf"));
+        fileChooser.setTitle("Choose a file");
+        this.primaryStage = primaryStage;
         this.location = location;
-        this.mapController = mapController;
     }
 
     @FXML
@@ -70,7 +63,9 @@ public class EditPointController {
         String file = fileTextField.getText();
 
         if (validateInputs(name, latitude, longitude, file)) {
-            database.editLocation(new Location(location.getId(), nameTextField.getText(), Double.parseDouble(latitudeTextField.getText()), Double.parseDouble(longitudeTextField.getText()), fileTextField.getText()));
+            locationTableService.editLocation(location, new Location(location.getId(), nameTextField.getText(),
+                    Double.parseDouble(latitudeTextField.getText()), Double.parseDouble(longitudeTextField.getText()), fileTextField.getText()));
+
             closeWindow();
         }
     }
@@ -89,7 +84,7 @@ public class EditPointController {
         if (validateInputs(name, latitude, longitude, file)) {
             int input = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this location?");
             if(input == 0) {
-                database.deleteLocation(location.getId());
+                locationTableService.deleteLocation(location);
                 int inputAlert = JOptionPane.showOptionDialog(null, "Location deleted", "Alert", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
 
                 if(inputAlert == JOptionPane.OK_OPTION) {
@@ -105,7 +100,7 @@ public class EditPointController {
         if (file != null) {
             System.out.println(file.getName());
             fileTextField.setText(file.getAbsolutePath());
-            fileTextField.setStyle("-fx-background-color: #e28787;");
+            fileTextField.setStyle("-fx-background-color: WHITE;");
         }
     }
 
@@ -143,13 +138,5 @@ public class EditPointController {
 
     private void closeWindow() {
         deleteBtn.getScene().getWindow().hide();
-    }
-
-    public void setController(MapController mapController) {
-        this.mapController = mapController;
-    }
-
-    public void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
     }
 }

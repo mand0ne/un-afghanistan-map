@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<Pane fx:id="pane" prefHeight="300.0" prefWidth="300.0" style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<Pane fx:id="pane" maxHeight="300.0" maxWidth="300.0" prefHeight="300.0" prefWidth="300.0" style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="un.afghanistan.map.controllers.AddPointController">
    <children>
       <VBox prefHeight="300.0" prefWidth="300.0">
          <children>
