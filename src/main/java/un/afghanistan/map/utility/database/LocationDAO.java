@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class LocationDAO {
     private static LocationDAO instance = null;
-    private PreparedStatement addLocation, editLocation, deleteLocation, getLocations, fetchLatestLocation, getSelectedLocation;
+    private PreparedStatement addLocation, editLocation, deleteLocation, getLocations, fetchLatestLocation, getSelectedLocation, addFile, editFile;
     private Connection conn;
     private UpdateMapInterface updateMapInterface;
 
@@ -58,12 +58,15 @@ public class LocationDAO {
     }
 
     private void prepareStatements() throws SQLException {
-        getLocations = conn.prepareStatement("SELECT id, name, latitude, longitude FROM location");
+        getLocations = conn.prepareStatement("SELECT l.id, l.name, l.latitude, l.longitude, f.path FROM location l, file f WHERE l.id = f.point_id");
         addLocation = conn.prepareStatement("INSERT INTO location (name, latitude, longitude) VALUES (?,?,?);");
         editLocation = conn.prepareStatement("UPDATE location set name=?, longitude=?, latitude=? where id = ?");
         deleteLocation = conn.prepareStatement("DELETE FROM location WHERE id = ?");
         fetchLatestLocation = conn.prepareStatement("SELECT max(id) FROM location");
         getSelectedLocation = conn.prepareStatement("SELECT * FROM location WHERE latitude = ? AND longitude = ?");
+
+        addFile = conn.prepareStatement("INSERT INTO file (path, point_id) VALUES (?, ?)");
+        editFile = conn.prepareStatement("UPDATE file SET PATH=? WHERE point_id=?");
     }
 
     public static LocationDAO getInstance() {
@@ -89,7 +92,7 @@ public class LocationDAO {
             ResultSet result = getLocations.executeQuery();
             while (result.next()) {
                 Location location = new Location(result.getInt(1), result.getString(2), result.getDouble(3),
-                        result.getDouble(4));
+                        result.getDouble(4), "");
                 System.out.println(location.getId() + " " + location.getName());
                 locations.add(location);
             }
@@ -100,7 +103,7 @@ public class LocationDAO {
         return locations;
     }
 
-    public void addLocation(String name, double latitude, double longitude) {
+    public void addLocation(String name, double latitude, double longitude, String filePath) {
         try {
             addLocation.setString(1, name);
             addLocation.setDouble(2, latitude);
@@ -112,7 +115,11 @@ public class LocationDAO {
             while (result.next())
                 latestId = result.getInt(1);
 
-            updateMapInterface.onMapUpdateRequest(new Location(latestId, name, latitude, longitude));
+            addFile.setString(1, filePath);
+            addFile.setInt(2, latestId);
+            addFile.executeUpdate();
+
+            updateMapInterface.onMapUpdateRequest(new Location(latestId, name, latitude, longitude, filePath));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -134,7 +141,12 @@ public class LocationDAO {
             editLocation.setDouble(3, location.getLatitude());
             editLocation.setInt(4, location.getId());
             editLocation.executeUpdate();
-            updateMapInterface.onMapUpdateRequest(new Location(location.getId(), location.getName(), location.getLatitude(), location.getLongitude()));
+
+            editFile.setString(1, location.getFilePath());
+            editFile.setInt(2, location.getId());
+            editFile.executeUpdate();
+
+            updateMapInterface.onMapUpdateRequest(new Location(location.getId(), location.getName(), location.getLatitude(), location.getLongitude(), location.getFilePath()));
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -150,7 +162,7 @@ public class LocationDAO {
             ResultSet result = getSelectedLocation.executeQuery();
             while (result.next()) {
                 location = new Location(result.getInt(1), result.getString(2), result.getDouble(3),
-                        result.getDouble(4));
+                        result.getDouble(4), "");
 
                 System.out.println(location.getId() + " " + location.getName());
             }

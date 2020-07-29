@@ -11,14 +11,16 @@ public class Location {
     private SimpleStringProperty name      = new SimpleStringProperty("");
     private SimpleDoubleProperty latitude  = new SimpleDoubleProperty(0);
     private SimpleDoubleProperty longitude = new SimpleDoubleProperty(0);
+    private SimpleStringProperty filePath  = new SimpleStringProperty("");
 
     public Location() {}
 
-    public Location(int id, String name, double latitude, double longitude) {
+    public Location(int id, String name, double latitude, double longitude, String filePath) {
         this.id        = new SimpleIntegerProperty(id);
         this.name      = new SimpleStringProperty(name);
         this.latitude  = new SimpleDoubleProperty(latitude);
         this.longitude = new SimpleDoubleProperty(longitude);
+        this.filePath  = new SimpleStringProperty(filePath);
     }
 
     public int getId() {
@@ -67,6 +69,18 @@ public class Location {
 
     public void setLongitude(double longitude) {
         this.longitude.set(longitude);
+    }
+
+    public String getFilePath() {
+        return filePath.get();
+    }
+
+    public SimpleStringProperty filePathProperty() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath.set(filePath);
     }
 
     @Override

@@ -11,6 +11,6 @@ CREATE TABLE IF NOT EXISTS file (
     point_id INTEGER,
     path TEXT,
     PRIMARY KEY(id),
-    FOREIGN KEY(point_id) REFERENCES location(id)
+    FOREIGN KEY(point_id) REFERENCES location(id) ON DELETE CASCADE
 );
 COMMIT;

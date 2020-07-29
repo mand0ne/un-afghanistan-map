@@ -275,22 +275,31 @@ public class MapController implements UpdateMapInterface {
         }
     }
 
-    public void addPointAction() {
+    public void addPointAction() throws IOException {
         Stage stage = new Stage();
-        Parent root = null;
-        stage.setTitle("Add point");
-        stage.setScene(new Scene(FXMLUtils.loadController("fxml/addPoint.fxml")));
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/un/afghanistan/map/fxml/addPoint.fxml"));
+        AddPointController addPointController = new AddPointController();
+        addPointController.setPrimaryStage(stage);
+        fxmlLoader.setController(addPointController);
+
+        Parent root = fxmlLoader.load();
+        stage.setTitle("Add new location");
+        stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
         stage.setResizable(false);
         stage.showAndWait();
     }
 
-    public void editButtonAction(ActionEvent actionEvent) throws IOException {
+    public void editButtonAction() throws IOException {
         Stage stage = new Stage();
+
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/un/afghanistan/map/fxml/editPoint.fxml"));
-        EditPointControler editPointControler = new EditPointControler(locationListView.getSelectionModel().getSelectedItem());
-        editPointControler.setController(this);
-        fxmlLoader.setController(editPointControler);
+        EditPointController editPointController = new EditPointController(locationListView.getSelectionModel().getSelectedItem(), this);
+        editPointController.setPrimaryStage(stage);
+        fxmlLoader.setController(editPointController);
+
         Parent root = fxmlLoader.load();
+        stage.setTitle("Edit location");
         stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
         stage.setResizable(false);;
         stage.showAndWait();
