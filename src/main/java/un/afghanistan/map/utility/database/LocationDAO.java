@@ -37,14 +37,14 @@ public class LocationDAO {
         Scanner ulaz = null;
         try {
             ulaz = new Scanner(new FileInputStream("src/main/resources/un/afghanistan/map/database/generateDatabase.sql"));
-            String sqlUpit = "";
+            StringBuilder sqlUpit = new StringBuilder("");
             while (ulaz.hasNext()) {
-                sqlUpit += ulaz.nextLine();
+                sqlUpit.append(ulaz.nextLine());
                 if (sqlUpit.charAt(sqlUpit.length() - 1) == ';') {
                     try {
                         Statement stmt = conn.createStatement();
-                        stmt.execute(sqlUpit);
-                        sqlUpit = "";
+                        stmt.execute(sqlUpit.toString());
+                        sqlUpit = new StringBuilder("");
                     } catch (SQLException e) {
                         System.out.println(conn == null);
                         e.printStackTrace();
