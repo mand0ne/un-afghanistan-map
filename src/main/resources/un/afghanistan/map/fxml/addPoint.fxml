@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<Pane fx:id="pane" prefHeight="300.0" prefWidth="300.0" style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="un.afghanistan.map.controllers.AddPointControler">
+<Pane fx:id="pane" prefHeight="300.0" prefWidth="300.0" style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox prefHeight="300.0" prefWidth="300.0">
          <children>
@@ -45,7 +45,7 @@
                </children></HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="95.0" prefWidth="300.0">
                <children>
-                  <Label text="Name: " textFill="WHITE">
+                  <Label prefHeight="18.0" prefWidth="40.0" text="Name: " textFill="WHITE">
                      <HBox.margin>
                         <Insets left="20.0" />
                      </HBox.margin>
@@ -56,6 +56,21 @@
                      </HBox.margin>
                   </TextField>
                </children></HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="95.0" prefWidth="300.0">
+               <children>
+                  <Label prefHeight="18.0" prefWidth="40.0" text="File" textFill="WHITE">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextField fx:id="fileTextField" prefHeight="26.0" prefWidth="124.0">
+                     <HBox.margin>
+                        <Insets left="45.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Button fx:id="browseBtn" mnemonicParsing="false" onAction="#browseButtonAction" prefHeight="22.0" prefWidth="24.0" text="..." />
+               </children>
+            </HBox>
             <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Button fx:id="addBtn" mnemonicParsing="false" onAction="#addButtonAction" prefWidth="60.0" text="Add">

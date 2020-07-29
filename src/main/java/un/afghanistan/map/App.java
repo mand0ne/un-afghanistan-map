@@ -20,14 +20,10 @@ import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import com.esri.arcgisruntime.mapping.ArcGISMap;
-import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 import un.afghanistan.map.controllers.MapController;
 import un.afghanistan.map.utility.FXMLUtils;
 import un.afghanistan.map.utility.StageUtils;
