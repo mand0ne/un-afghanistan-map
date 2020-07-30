@@ -15,6 +15,7 @@ import com.esri.arcgisruntime.portal.PortalItem;
 import com.esri.arcgisruntime.security.UserCredential;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -399,5 +400,13 @@ public class MapController implements UpdateMapInterface {
         graphicsOverlay.getGraphics().remove(previouslySelectedGraphic);
         System.out.println("Sto to sine");
         callout.dismiss();
+    }
+
+    public void loadDataAction(ActionEvent actionEvent) {
+        LocationDAO.getInstance().loadDataFromFile();
+    }
+
+    public void saveDataAction(ActionEvent actionEvent) {
+        LocationDAO.getInstance().saveDataToFile();
     }
 }
