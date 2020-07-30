@@ -81,6 +81,16 @@ public class EditPointController {
         String longitude = longitudeTextField.getText();
         String file = fileTextField.getText();
 
+        int input = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this location?");
+        if(input == 0) {
+            locationTableService.deleteLocation(location);
+            int inputAlert = JOptionPane.showOptionDialog(null, "Location deleted", "Alert", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+
+            if(inputAlert == JOptionPane.OK_OPTION) {
+                closeWindow();
+            }
+        }
+
     }
 
     public void browseButtonAction() {

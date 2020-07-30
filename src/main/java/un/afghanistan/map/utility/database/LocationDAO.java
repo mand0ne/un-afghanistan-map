@@ -191,7 +191,7 @@ public class LocationDAO {
             fetchLocatinByLatLong.setDouble(1, latitude);
             fetchLocatinByLatLong.setDouble(2, longitude);
             ResultSet result = fetchLocatinByLatLong.executeQuery();
-            if(result.getFetchSize() > 0)
+            if(result.next())
                 return true;
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -210,7 +210,9 @@ public class LocationDAO {
             try (BufferedReader br = new BufferedReader(new FileReader(selectedFile))) {
                 br.readLine();
                 while ((line = br.readLine()) != null) {
-                    String[] location = line.split(",");
+                    line = line.replace("\"", "");
+                    String[] location = line.split("\\?");
+                    System.out.println(location[0] + " " + location[1] + " " + location[2] + " " + location[3] + " " + location[4]);
                     if(!doesLocationExistInDatabase(Double.parseDouble(location[2]), Double.parseDouble(location[3]))) {
                         if(location.length == 5)
                             this.addLocation(location[1], Double.parseDouble(location[2]), Double.parseDouble(location[3]), location[4]);
@@ -244,7 +246,7 @@ public class LocationDAO {
 
                     // Add table headers to CSV file.
                     CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-                            .withHeader(results.getMetaData()).withQuoteMode(QuoteMode.ALL));
+                            .withHeader(results.getMetaData()).withQuoteMode(QuoteMode.ALL).withDelimiter('?'));
 
                     // Add data rows to CSV file.
                     while (results.next()) {
