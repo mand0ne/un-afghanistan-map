@@ -31,6 +31,7 @@ public class EditPointController {
 
     @FXML
     public void initialize() {
+        setWindowsLook();
         latitudeTextField.setText(Double.toString(location.getLatitude()));
         longitudeTextField.setText(Double.toString(location.getLongitude()));
         nameTextField.setText(location.getName());
@@ -70,6 +71,14 @@ public class EditPointController {
         }
     }
 
+    private void setWindowsLook() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public void cancelButtonAction() {
         closeWindow();
     }
@@ -84,11 +93,8 @@ public class EditPointController {
         int input = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this location?");
         if(input == 0) {
             locationTableService.deleteLocation(location);
-            int inputAlert = JOptionPane.showOptionDialog(null, "Location deleted", "Alert", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
-
-            if(inputAlert == JOptionPane.OK_OPTION) {
-                closeWindow();
-            }
+            JOptionPane.showMessageDialog(null, "Location deleted");
+            closeWindow();
         }
 
     }

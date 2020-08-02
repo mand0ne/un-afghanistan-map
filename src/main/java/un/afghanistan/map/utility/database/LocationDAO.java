@@ -8,6 +8,7 @@ import un.afghanistan.map.interfaces.UpdateMapInterface;
 import un.afghanistan.map.models.Location;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -199,9 +200,30 @@ public class LocationDAO {
         return false;
     }
 
+    private void setWindowsLook() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void unsetWindowsLook() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getLookAndFeel());
+        }catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
     public void loadDataFromFile() {
+        setWindowsLook();
         JFrame parentFrame = new JFrame();
         JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV file", "csv");
+        fileChooser.setFileFilter(filter);
+        fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
         int result = fileChooser.showOpenDialog(parentFrame);
         if (result == JFileChooser.APPROVE_OPTION) {
@@ -226,11 +248,13 @@ public class LocationDAO {
         }
     }
 
-
     public void saveDataToFile() {
+        setWindowsLook();
         JFrame parentFrame = new JFrame();
-
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV file", "csv");
         JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(filter);
+        fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setDialogTitle("Specify a file to save");
 
         int userSelection = fileChooser.showSaveDialog(parentFrame);
