@@ -60,8 +60,9 @@ public class AddPointController {
         String longitude = longitudeTextField.getText();
         String file = fileTextField.getText();
 
-        if (validateInputs(name, latitude, longitude, file)) {
-            locationTableService.addLocation(nameTextField.getText(), Double.parseDouble(latitudeTextField.getText()), Double.parseDouble(longitudeTextField.getText()), fileTextField.getText());
+        if (validateInputs(name, latitude, longitude, file) &&
+                !locationTableService.doesLocationExistInDatabase(Double.parseDouble(latitude), Double.parseDouble(longitude))) {
+            locationTableService.addLocation(name, Double.parseDouble(latitude), Double.parseDouble(longitude), file);
             closeWindow();
         }
     }

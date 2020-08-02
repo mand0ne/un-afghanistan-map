@@ -243,6 +243,12 @@ public class MapController implements UpdateMapInterface {
         mapView.setViewpointAsync(viewpoint, 2);
     }
 
+    public void resetViewpointKabul() {
+        // Latitude, longitude, scale
+        Viewpoint viewpoint = new Viewpoint(34.5249, 69.172251, 2e5);
+        // Take 2 seconds to move to viewpoint
+        mapView.setViewpointAsync(viewpoint, 2);
+    }
 
     /**
      * Indicates when a graphic is clicked by outlining the symbol/marker associated with the graphic.
