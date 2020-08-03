@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.CheckBox?>
 <Pane fx:id="pane" maxHeight="300.0" maxWidth="300.0" prefHeight="300.0" prefWidth="300.0" style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="un.afghanistan.map.controllers.AddPointController">
    <children>
       <VBox prefHeight="300.0" prefWidth="300.0">
@@ -69,6 +70,16 @@
                      </HBox.margin>
                   </TextField>
                   <Button fx:id="browseBtn" mnemonicParsing="false" onAction="#browseButtonAction" prefHeight="22.0" prefWidth="24.0" text="..." />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="167.0" prefHeight="95.0" prefWidth="300.0">
+               <children>
+                  <Label prefHeight="18.0" prefWidth="150.0" text="Is in Kabul city SRM area" textFill="WHITE">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </Label>
+                  <CheckBox fx:id="isInKabulCheckbox" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="18.0" prefWidth="16.0" textAlignment="CENTER" textFill="WHITE" />
                </children>
             </HBox>
             <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">

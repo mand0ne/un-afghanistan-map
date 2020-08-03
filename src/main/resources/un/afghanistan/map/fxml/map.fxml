@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<BorderPane fx:id="pane" prefHeight="800.0" prefWidth="1300.0" style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="un.afghanistan.map.controllers.MapController">
+<BorderPane fx:id="pane" prefHeight="800.0" prefWidth="1300.0" style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="un.afghanistan.map.controllers.MapController">
     <top>
         <VBox alignment="CENTER" maxWidth="1300.0" prefHeight="100.0" BorderPane.alignment="CENTER">
             <children>
@@ -22,7 +37,7 @@
                         </Menu>
                         <Menu mnemonicParsing="false" text="Edit">
                             <items>
-                                <MenuItem onAction="#deleteAllLocationsAction" mnemonicParsing="false" text="Delete All Locations" />
+                                <MenuItem mnemonicParsing="false" onAction="#deleteAllLocationsAction" text="Delete All Locations" />
                             </items>
                         </Menu>
                         <Menu mnemonicParsing="false" text="Help">
@@ -85,7 +100,7 @@
                                 <ButtonBar buttonMinWidth="75.0" buttonOrder="" nodeOrientation="RIGHT_TO_LEFT" GridPane.columnIndex="1">
                                     <buttons>
                                         <ComboBox fx:id="comboBox" maxWidth="125.0" nodeOrientation="RIGHT_TO_LEFT" onAction="#changeBasemapStyle" prefHeight="30.0" prefWidth="125.0" promptText="Basemap style" style="-fx-background-color: WHITE;" visibleRowCount="5" />
-                                        <JFXButton fx:id="resetViewpointButton" alignment="CENTER" maxWidth="120.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#resetViewpoint" prefHeight="30.0" prefWidth="120.0" style="-fx-background-color: WHITE;" text="Afghanistan" textFill="#123456">
+                                        <JFXButton fx:id="resetViewpointAfghanistanButton" alignment="CENTER" maxWidth="120.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#resetViewpointAfghanistan" prefHeight="30.0" prefWidth="120.0" style="-fx-background-color: WHITE;" text="Afghanistan" textFill="#123456">
                                             <graphic>
                                                 <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                                                     <image>
@@ -94,7 +109,7 @@
                                                 </ImageView>
                                             </graphic>
                                         </JFXButton>
-                                        <JFXButton fx:id="resetKabul" alignment="CENTER" maxWidth="75.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#resetViewpointKabul" prefHeight="30.0" prefWidth="100.0" style="-fx-background-color: WHITE;" text="Kabul" textFill="#123456">
+                                        <JFXButton fx:id="resetViewpointKabulButton" alignment="CENTER" maxWidth="75.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#resetViewpointKabul" prefHeight="30.0" prefWidth="100.0" style="-fx-background-color: WHITE;" text="Kabul" textFill="#123456">
                                             <graphic>
                                                 <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                                                     <image>

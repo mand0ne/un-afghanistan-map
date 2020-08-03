@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS location (
     name TEXT,
     latitude REAL,
     longitude REAL,
+    is_in_kabul BIT,
     PRIMARY KEY(id)
 );
 CREATE TABLE IF NOT EXISTS file (

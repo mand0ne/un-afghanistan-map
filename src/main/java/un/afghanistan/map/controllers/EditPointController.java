@@ -2,6 +2,7 @@ package un.afghanistan.map.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -16,6 +17,8 @@ public class EditPointController {
     private Button deleteBtn;
     @FXML
     private TextField latitudeTextField, longitudeTextField, nameTextField, fileTextField;
+    @FXML
+    private CheckBox isInKabulCheckbox;
 
     private final Location location;
     private final LocationDAO locationTableService = LocationDAO.getInstance();
@@ -35,6 +38,7 @@ public class EditPointController {
         longitudeTextField.setText(Double.toString(location.getLongitude()));
         nameTextField.setText(location.getName());
         fileTextField.setText(location.getFilePath());
+        isInKabulCheckbox.setSelected(location.isInKabul());
 
         nameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(""))
@@ -60,10 +64,11 @@ public class EditPointController {
         String latitude = latitudeTextField.getText();
         String longitude = longitudeTextField.getText();
         String file = fileTextField.getText();
+        boolean isInKabul = isInKabulCheckbox.isSelected();
 
         if (validateInputs(name, latitude, longitude, file)) {
-            locationTableService.editLocation(location, new Location(location.getId(), nameTextField.getText(),
-                    Double.parseDouble(latitudeTextField.getText()), Double.parseDouble(longitudeTextField.getText()), fileTextField.getText()));
+            locationTableService.editLocation(location, new Location(location.getId(), name,
+                    Double.parseDouble(latitude), Double.parseDouble(longitude), file, isInKabul));
 
             closeWindow();
         }

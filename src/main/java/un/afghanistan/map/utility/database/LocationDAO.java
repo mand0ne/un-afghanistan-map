@@ -72,12 +72,12 @@ public class LocationDAO {
     }
 
     private void prepareStatements() throws SQLException {
-        getLocations = conn.prepareStatement("SELECT l.id, l.name, l.latitude, l.longitude, f.path FROM location l, file f WHERE l.id = f.point_id");
-        addLocation = conn.prepareStatement("INSERT INTO location (name, latitude, longitude) VALUES (?,?,?);");
-        editLocation = conn.prepareStatement("UPDATE location set name=?, longitude=?, latitude=? where id = ?");
+        getLocations = conn.prepareStatement("SELECT l.id, l.name, l.latitude, l.longitude, f.path, l.is_in_kabul FROM location l, file f WHERE l.id = f.point_id");
+        addLocation = conn.prepareStatement("INSERT INTO location (name, latitude, longitude, is_in_kabul) VALUES (?,?,?,?);");
+        editLocation = conn.prepareStatement("UPDATE location set name=?, longitude=?, latitude=?, is_in_kabul=? where id = ?");
         deleteLocation = conn.prepareStatement("DELETE FROM location WHERE id = ?");
         fetchLatestLocation = conn.prepareStatement("SELECT max(id) FROM location");
-        getSelectedLocation = conn.prepareStatement("SELECT l.id, l.name, l.latitude, l.longitude, f.path FROM location l, file f WHERE l.latitude = ? AND l.longitude = ? AND l.id = f.point_id");
+        getSelectedLocation = conn.prepareStatement("SELECT l.id, l.name, l.latitude, l.longitude, f.path, l.is_in_kabul FROM location l, file f WHERE l.latitude = ? AND l.longitude = ? AND l.id = f.point_id");
         addFile = conn.prepareStatement("INSERT INTO file (path, point_id) VALUES (?, ?)");
         editFile = conn.prepareStatement("UPDATE file SET PATH=? WHERE point_id=?");
         fetchLocatinByLatLong = conn.prepareStatement("SELECT id FROM location WHERE latitude = ? and longitude = ?");
@@ -108,7 +108,7 @@ public class LocationDAO {
             ResultSet result = getLocations.executeQuery();
             while (result.next()) {
                 Location location = new Location(result.getInt(1), result.getString(2), result.getDouble(3),
-                        result.getDouble(4), result.getString(5));
+                        result.getDouble(4), result.getString(5), result.getBoolean(6));
                 System.out.println(location.getId() + " " + location.getName());
                 locations.add(location);
             }
@@ -119,11 +119,12 @@ public class LocationDAO {
         return locations;
     }
 
-    public void addLocation(String name, double latitude, double longitude, String filePath) {
+    public void addLocation(String name, double latitude, double longitude, String filePath, boolean isInKabul) {
         try {
             addLocation.setString(1, name);
             addLocation.setDouble(2, latitude);
             addLocation.setDouble(3, longitude);
+            addLocation.setBoolean(4, isInKabul);
             addLocation.executeUpdate();
 
             ResultSet result = fetchLatestLocation.executeQuery();
@@ -137,7 +138,7 @@ public class LocationDAO {
                 addFile.executeUpdate();
             }
 
-            updateMapInterface.onAddLocationRequest(new Location(latestId, name, latitude, longitude, filePath));
+            updateMapInterface.onAddLocationRequest(new Location(latestId, name, latitude, longitude, filePath, isInKabul));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -160,6 +161,7 @@ public class LocationDAO {
             editLocation.setDouble(2, newLocation.getLongitude());
             editLocation.setDouble(3, newLocation.getLatitude());
             editLocation.setInt(4, newLocation.getId());
+            editLocation.setBoolean(5, newLocation.isInKabul());
             editLocation.executeUpdate();
 
             editFile.setString(1, newLocation.getFilePath());
@@ -183,7 +185,7 @@ public class LocationDAO {
             ResultSet result = getSelectedLocation.executeQuery();
             while (result.next()) {
                 location = new Location(result.getInt(1), result.getString(2), result.getDouble(3),
-                        result.getDouble(4), result.getString(5));
+                        result.getDouble(4), result.getString(5), result.getBoolean(6));
 
                 System.out.println(location.getId() + " " + location.getName());
             }
@@ -227,10 +229,11 @@ public class LocationDAO {
                     String[] location = line.split("\\?");
                     System.out.println(location[0] + " " + location[1] + " " + location[2] + " " + location[3] + " " + location[4]);
                     if(!doesLocationExistInDatabase(Double.parseDouble(location[2]), Double.parseDouble(location[3]))) {
-                        if(location.length == 5)
-                            this.addLocation(location[1], Double.parseDouble(location[2]), Double.parseDouble(location[3]), location[4]);
+
+                        if(location.length == 6)
+                            this.addLocation(location[1], Double.parseDouble(location[2]), Double.parseDouble(location[3]), location[4], location[5].equals("1"));
                         else
-                            this.addLocation(location[1], Double.parseDouble(location[2]), Double.parseDouble(location[3]), "");
+                            this.addLocation(location[1], Double.parseDouble(location[2]), Double.parseDouble(location[3]), "", false);
                     }
                 }
             } catch (IOException e) {
@@ -261,7 +264,8 @@ public class LocationDAO {
                                 results.getString(2),
                                 results.getDouble(3),
                                 results.getDouble(4),
-                                results.getString(5));
+                                results.getString(5),
+                                results.getBoolean(6) ? "1" : "0");
                     }
                     // Close CSV file.
                     csvPrinter.flush();

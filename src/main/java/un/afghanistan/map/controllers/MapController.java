@@ -47,9 +47,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static javafx.scene.control.PopupControl.USE_COMPUTED_SIZE;
 import static javafx.scene.paint.Color.WHITE;
@@ -63,7 +66,7 @@ public class MapController implements UpdateMapInterface {
     @FXML
     private ListView<Location> locationListView;
     @FXML
-    private Button editPointBtn, addPointBtn;
+    private Button editPointBtn, resetViewpointAfghanistanButton, resetViewpointKabulButton;
     @FXML
     private Label locationLabel;
 
@@ -74,6 +77,9 @@ public class MapController implements UpdateMapInterface {
     private Callout callout;
     private final GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
     private Basemap defaultBasemap;
+
+    private ArrayList<Location> allLocations = new ArrayList<>();
+    private PictureMarkerSymbol markerSymbol;
 
     public MapController(MapView mapView) {
         this.mapView = mapView;
@@ -174,26 +180,20 @@ public class MapController implements UpdateMapInterface {
     }
 
     public void finishLoading() {
-        resetViewpoint();
 
         // Create a graphic overlay
         mapView.getGraphicsOverlays().add(graphicsOverlay);
 
         // Create picture marker symbol
         Image flag = new Image("/un/afghanistan/map/img/marker.png");
-        PictureMarkerSymbol markerSymbol = new PictureMarkerSymbol(flag);
+        markerSymbol = new PictureMarkerSymbol(flag);
         markerSymbol.setHeight(30);
         markerSymbol.setWidth(18);
 
         LocationDAO locationDAO = LocationDAO.getInstance();
+        allLocations.addAll(locationDAO.getLocations());
 
-        // Add a marker for every location
-        for (Location l : locationDAO.getLocations()) {
-            locationListView.getItems().add(l);
-            Point graphicPoint = new Point(l.getLongitude(), l.getLatitude(), SpatialReference.create(4326));
-            Graphic symbolGraphic = new Graphic(graphicPoint, markerSymbol);
-            graphicsOverlay.getGraphics().add(symbolGraphic);
-        }
+        resetViewpointAfghanistan();
 
         // Define listeners
         mapView.setOnMouseMoved(mouseEvent -> {
@@ -245,18 +245,44 @@ public class MapController implements UpdateMapInterface {
      * Called when "Reset" button is clicked.
      * Will reset the Viewpoint to a default Point and scale.
      */
-    public void resetViewpoint() {
-        // Latitude, longitude, scale
+    public void resetViewpointAfghanistan() {
+        resetViewpointAfghanistanButton.setStyle("-fx-background-color: #bfbaba; ");
+        resetViewpointKabulButton.setStyle("-fx-background-color: white; ");
+
+        ArrayList<Location> locations = new ArrayList<>(allLocations.stream().filter(location -> !location.isInKabul()).collect(Collectors.toList()));
+
+        locationListView.getItems().clear();
+        locationListView.getItems().addAll(locations);
+
+        resetGraphics(locations);
+
         Viewpoint viewpoint = new Viewpoint(33.9391, 67.7100, 0.83e7);
-        // Take 2 seconds to move to viewpoint
         mapView.setViewpointAsync(viewpoint, 2);
     }
 
     public void resetViewpointKabul() {
-        // Latitude, longitude, scale
+        resetViewpointKabulButton.setStyle("-fx-background-color: #bfbaba; ");
+        resetViewpointAfghanistanButton.setStyle("-fx-background-color: white; ");
+
+        ArrayList<Location> locations = new ArrayList<>(allLocations.stream().filter(location -> location.isInKabul()).collect(Collectors.toList()));
+
+        locationListView.getItems().clear();
+        locationListView.getItems().addAll(locations);
+
+        resetGraphics(locations);
+
         Viewpoint viewpoint = new Viewpoint(34.5249, 69.172251, 2e5);
-        // Take 2 seconds to move to viewpoint
         mapView.setViewpointAsync(viewpoint, 2);
+    }
+
+    private void resetGraphics(ArrayList<Location> locations) {
+        graphicsOverlay.getGraphics().clear();
+        for (Location l : locations) {
+            Point graphicPoint = new Point(l.getLongitude(), l.getLatitude(), SpatialReference.create(4326));
+            Graphic symbolGraphic = new Graphic(graphicPoint, markerSymbol);
+            graphicsOverlay.getGraphics().add(symbolGraphic);
+
+        }
     }
 
     /**
@@ -398,6 +424,7 @@ public class MapController implements UpdateMapInterface {
     @Override
     public void onAddLocationRequest(Location location) {
         locationListView.getItems().add(location);
+        allLocations.add(location);
 
         // Create picture marker symbol
         Image flag = new Image("/un/afghanistan/map/img/marker.png");
@@ -411,6 +438,7 @@ public class MapController implements UpdateMapInterface {
 
     @Override
     public void onDeleteLocationRequest(Location location) {
+        allLocations.remove(location);
         locationListView.getItems().removeAll(location);
         graphicsOverlay.getGraphics().remove(previouslySelectedGraphic);
         System.out.println("Sto to sine");

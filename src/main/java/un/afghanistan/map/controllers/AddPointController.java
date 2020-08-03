@@ -3,8 +3,10 @@ package un.afghanistan.map.controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.CheckBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import un.afghanistan.map.utility.database.LocationDAO;
 
 import java.awt.*;
@@ -17,7 +19,9 @@ public class AddPointController {
     @FXML
     private Button addBtn;
     @FXML
-    public TextField longitudeTextField, latitudeTextField, nameTextField, fileTextField;
+    private TextField longitudeTextField, latitudeTextField, nameTextField, fileTextField;
+    @FXML
+    private CheckBox isInKabulCheckbox;
 
     private final LocationDAO locationTableService = LocationDAO.getInstance();
 
@@ -59,10 +63,11 @@ public class AddPointController {
         String latitude = latitudeTextField.getText();
         String longitude = longitudeTextField.getText();
         String file = fileTextField.getText();
+        boolean isInKabul = isInKabulCheckbox.isSelected();
 
         if (validateInputs(name, latitude, longitude, file) &&
                 !locationTableService.doesLocationExistInDatabase(Double.parseDouble(latitude), Double.parseDouble(longitude))) {
-            locationTableService.addLocation(name, Double.parseDouble(latitude), Double.parseDouble(longitude), file);
+            locationTableService.addLocation(name, Double.parseDouble(latitude), Double.parseDouble(longitude), file, isInKabul);
             closeWindow();
         }
     }
