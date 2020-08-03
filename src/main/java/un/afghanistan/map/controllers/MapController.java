@@ -35,6 +35,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import un.afghanistan.map.App;
 import un.afghanistan.map.gui.BasemapListCell;
 import un.afghanistan.map.interfaces.UpdateMapInterface;
 import un.afghanistan.map.models.Location;
@@ -42,6 +43,7 @@ import un.afghanistan.map.utility.database.LocationDAO;
 import un.afghanistan.map.utility.javafx.FXMLUtils;
 import un.afghanistan.map.utility.javafx.StageUtils;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -80,7 +82,6 @@ public class MapController implements UpdateMapInterface {
 
     @FXML
     public void initialize() {
-
         comboBox.getItems().removeAll(comboBox.getItems());
         comboBox.getItems().addAll("Charted Territory Map", "Dark Gray Canvas", "Light Gray Canvas", "Imagery", "Imagery Hybrid",
                 "National Geographic", "Navigation", "Navigation (Dark mode)", "Newspaper Map",
@@ -162,6 +163,14 @@ public class MapController implements UpdateMapInterface {
         });
 
         portal.loadAsync();
+    }
+
+    private void setWindowsLook() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }catch(Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void finishLoading() {
@@ -409,10 +418,19 @@ public class MapController implements UpdateMapInterface {
     }
 
     public void loadDataAction(ActionEvent actionEvent) {
-        LocationDAO.getInstance().loadDataFromFile();
+        LocationDAO.getInstance().loadDataFromFile(App.primaryStage);
     }
 
     public void saveDataAction(ActionEvent actionEvent) {
-        LocationDAO.getInstance().saveDataToFile();
+        LocationDAO.getInstance().saveDataToFile(App.primaryStage);
+    }
+
+    public void deleteAllLocationsAction(ActionEvent actionEvent) {
+        setWindowsLook();
+        int input = JOptionPane.showConfirmDialog(null, "You cannot undo this! Are you sure you want to delete all locations?");
+        if(input == 0) {
+            LocationDAO.getInstance().deleteAllLocations();
+            JOptionPane.showMessageDialog(null, "Locations deleted");
+        }
     }
 }
