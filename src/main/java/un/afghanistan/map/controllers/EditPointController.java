@@ -31,7 +31,6 @@ public class EditPointController {
 
     @FXML
     public void initialize() {
-        setWindowsLook();
         latitudeTextField.setText(Double.toString(location.getLatitude()));
         longitudeTextField.setText(Double.toString(location.getLongitude()));
         nameTextField.setText(location.getName());
@@ -57,7 +56,6 @@ public class EditPointController {
     }
 
     public void saveButtonAction() {
-
         String name = nameTextField.getText();
         String latitude = latitudeTextField.getText();
         String longitude = longitudeTextField.getText();
@@ -71,25 +69,11 @@ public class EditPointController {
         }
     }
 
-    private void setWindowsLook() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }catch(Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
     public void cancelButtonAction() {
         closeWindow();
     }
 
     public void deleteButtonAction() {
-
-        String name = nameTextField.getText();
-        String latitude = latitudeTextField.getText();
-        String longitude = longitudeTextField.getText();
-        String file = fileTextField.getText();
-
         int input = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this location?");
         if(input == 0) {
             locationTableService.deleteLocation(location);

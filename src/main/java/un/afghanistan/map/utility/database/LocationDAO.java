@@ -1,5 +1,7 @@
 package un.afghanistan.map.utility.database;
 
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
@@ -18,15 +20,18 @@ import java.util.Scanner;
 
 public class LocationDAO {
     private static LocationDAO instance = null;
-    private PreparedStatement addLocation, editLocation, deleteLocation, getLocations, fetchLatestLocation, getSelectedLocation, addFile, editFile, fetchLocatinByLatLong;
+    private PreparedStatement addLocation, editLocation, deleteLocation, getLocations, fetchLatestLocation, getSelectedLocation, addFile, editFile, fetchLocatinByLatLong, deleteAllFromLocation, deleteAllFromFile;
     private Connection conn;
     private UpdateMapInterface updateMapInterface;
+    private final FileChooser fileChooser = new FileChooser();
 
     public void setUpdateMapInterface(UpdateMapInterface updateMapInterface) {
         this.updateMapInterface = updateMapInterface;
     }
 
     private LocationDAO() {
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV File", "*.csv"));
+        fileChooser.setTitle("Choose a file");
         try {
             conn = DriverManager.getConnection("jdbc:sqlite:database.db");
             prepareStatements();
@@ -76,6 +81,8 @@ public class LocationDAO {
         addFile = conn.prepareStatement("INSERT INTO file (path, point_id) VALUES (?, ?)");
         editFile = conn.prepareStatement("UPDATE file SET PATH=? WHERE point_id=?");
         fetchLocatinByLatLong = conn.prepareStatement("SELECT id FROM location WHERE latitude = ? and longitude = ?");
+        deleteAllFromFile = conn.prepareStatement("DELETE FROM file");
+        deleteAllFromLocation = conn.prepareStatement("DELETE FROM location");
     }
 
     public static LocationDAO getInstance() {
@@ -200,34 +207,18 @@ public class LocationDAO {
         return false;
     }
 
-    private void setWindowsLook() {
+    public void deleteAllLocations() {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }catch(Exception ex) {
-            ex.printStackTrace();
+            deleteAllFromFile.executeUpdate();
+            deleteAllFromLocation.executeUpdate();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 
-    private void unsetWindowsLook() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getLookAndFeel());
-        }catch(Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-
-    public void loadDataFromFile() {
-        setWindowsLook();
-        JFrame parentFrame = new JFrame();
-        JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV file", "csv");
-        fileChooser.setFileFilter(filter);
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-        int result = fileChooser.showOpenDialog(parentFrame);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
+    public void loadDataFromFile(Stage primaryStage) {
+        File selectedFile = fileChooser.showOpenDialog(primaryStage);
+        if (selectedFile != null) {
             String line = "";
             try (BufferedReader br = new BufferedReader(new FileReader(selectedFile))) {
                 br.readLine();
@@ -248,19 +239,10 @@ public class LocationDAO {
         }
     }
 
-    public void saveDataToFile() {
-        setWindowsLook();
-        JFrame parentFrame = new JFrame();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV file", "csv");
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(filter);
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        fileChooser.setDialogTitle("Specify a file to save");
+    public void saveDataToFile(Stage primaryStage) {
+        File fileToSave = fileChooser.showSaveDialog(primaryStage);
 
-        int userSelection = fileChooser.showSaveDialog(parentFrame);
-
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
-            File fileToSave = fileChooser.getSelectedFile();
+        if (fileToSave != null) {
                 try {
                     // Execute query.
                     ResultSet results    = getLocations.executeQuery();
