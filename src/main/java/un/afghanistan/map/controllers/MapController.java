@@ -246,36 +246,30 @@ public class MapController implements UpdateMapInterface {
      * Will reset the Viewpoint to a default Point and scale.
      */
     public void resetViewpointAfghanistan() {
-        resetViewpointAfghanistanButton.setStyle("-fx-background-color: #bfbaba; ");
-        resetViewpointKabulButton.setStyle("-fx-background-color: white; ");
-
-        ArrayList<Location> locations = new ArrayList<>(allLocations.stream().filter(location -> !location.isInKabul()).collect(Collectors.toList()));
-
-        locationListView.getItems().clear();
-        locationListView.getItems().addAll(locations);
-
-        resetGraphics(locations);
-
         Viewpoint viewpoint = new Viewpoint(33.9391, 67.7100, 0.83e7);
         mapView.setViewpointAsync(viewpoint, 2);
+
+        resetGraphics(resetViewpointAfghanistanButton, resetViewpointKabulButton, false);
     }
 
     public void resetViewpointKabul() {
-        resetViewpointKabulButton.setStyle("-fx-background-color: #bfbaba; ");
-        resetViewpointAfghanistanButton.setStyle("-fx-background-color: white; ");
+        Viewpoint viewpoint = new Viewpoint(34.5249, 69.172251, 2e5);
+        mapView.setViewpointAsync(viewpoint, 2);
 
-        ArrayList<Location> locations = new ArrayList<>(allLocations.stream().filter(location -> location.isInKabul()).collect(Collectors.toList()));
+        resetGraphics(resetViewpointKabulButton, resetViewpointAfghanistanButton, true);
+    }
+
+    private void resetGraphics(Button mainButton, Button otherButton, boolean condition) {
+        if (mainButton.getBackground().getFills().get(0).getFill().toString().equals("0xbfbabaff")) return;
+
+        mainButton.setStyle("-fx-background-color: #bfbabaff; ");
+        otherButton.setStyle("-fx-background-color: white; ");
+
+        ArrayList<Location> locations = new ArrayList<>(allLocations.stream().filter(location -> location.isInKabul() == condition).collect(Collectors.toList()));
 
         locationListView.getItems().clear();
         locationListView.getItems().addAll(locations);
 
-        resetGraphics(locations);
-
-        Viewpoint viewpoint = new Viewpoint(34.5249, 69.172251, 2e5);
-        mapView.setViewpointAsync(viewpoint, 2);
-    }
-
-    private void resetGraphics(ArrayList<Location> locations) {
         graphicsOverlay.getGraphics().clear();
         for (Location l : locations) {
             Point graphicPoint = new Point(l.getLongitude(), l.getLatitude(), SpatialReference.create(4326));
@@ -331,7 +325,6 @@ public class MapController implements UpdateMapInterface {
                 locationListView.getSelectionModel().clearSelection();
             }
         } catch (Exception e) {
-            // on any error, display the stack trace
             e.printStackTrace();
         }
     }
@@ -423,14 +416,13 @@ public class MapController implements UpdateMapInterface {
 
     @Override
     public void onAddLocationRequest(Location location) {
-        locationListView.getItems().add(location);
         allLocations.add(location);
 
-        // Create picture marker symbol
-        Image flag = new Image("/un/afghanistan/map/img/marker.png");
-        PictureMarkerSymbol markerSymbol = new PictureMarkerSymbol(flag);
-        markerSymbol.setHeight(30);
-        markerSymbol.setWidth(18);
+        if (location.isInKabul() && resetViewpointAfghanistanButton.getBackground().getFills().get(0).getFill().toString().equals("0xbfbabaff")) return;
+        if (!location.isInKabul() && resetViewpointKabulButton.getBackground().getFills().get(0).getFill().toString().equals("0xbfbabaff")) return;
+
+        locationListView.getItems().add(location);
+
         Point graphicPoint = new Point(location.getLongitude(), location.getLatitude(), SpatialReference.create(4326));
         Graphic symbolGraphic = new Graphic(graphicPoint, markerSymbol);
         graphicsOverlay.getGraphics().add(symbolGraphic);
@@ -441,7 +433,6 @@ public class MapController implements UpdateMapInterface {
         allLocations.remove(location);
         locationListView.getItems().removeAll(location);
         graphicsOverlay.getGraphics().remove(previouslySelectedGraphic);
-        System.out.println("Sto to sine");
         callout.dismiss();
     }
 

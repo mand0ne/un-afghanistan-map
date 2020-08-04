@@ -9,11 +9,7 @@ import javafx.stage.Stage;
 
 import un.afghanistan.map.utility.database.LocationDAO;
 
-import java.awt.*;
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class AddPointController {
     @FXML
@@ -65,14 +61,14 @@ public class AddPointController {
         String file = fileTextField.getText();
         boolean isInKabul = isInKabulCheckbox.isSelected();
 
-        if (validateInputs(name, latitude, longitude, file) &&
+        if (validInputs(name, latitude, longitude, file) &&
                 !locationTableService.doesLocationExistInDatabase(Double.parseDouble(latitude), Double.parseDouble(longitude))) {
             locationTableService.addLocation(name, Double.parseDouble(latitude), Double.parseDouble(longitude), file, isInKabul);
             closeWindow();
         }
     }
 
-    public boolean validateInputs(String name, String latitude, String longitude, String file) {
+    public boolean validInputs(String name, String latitude, String longitude, String file) {
         boolean validInputs = true;
 
         if (name == null || name.equals("")) {

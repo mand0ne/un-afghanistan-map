@@ -186,8 +186,6 @@ public class LocationDAO {
             while (result.next()) {
                 location = new Location(result.getInt(1), result.getString(2), result.getDouble(3),
                         result.getDouble(4), result.getString(5), result.getBoolean(6));
-
-                System.out.println(location.getId() + " " + location.getName());
             }
         } catch (SQLException e) {
             e.printStackTrace();

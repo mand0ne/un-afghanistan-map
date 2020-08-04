@@ -66,7 +66,7 @@ public class EditPointController {
         String file = fileTextField.getText();
         boolean isInKabul = isInKabulCheckbox.isSelected();
 
-        if (validateInputs(name, latitude, longitude, file)) {
+        if (validInputs(name, latitude, longitude, file)) {
             locationTableService.editLocation(location, new Location(location.getId(), name,
                     Double.parseDouble(latitude), Double.parseDouble(longitude), file, isInKabul));
 
@@ -97,7 +97,7 @@ public class EditPointController {
         }
     }
 
-    public boolean validateInputs(String name, String latitude, String longitude, String file) {
+    public boolean validInputs(String name, String latitude, String longitude, String file) {
         boolean validInputs = true;
 
         if (name == null || name.equals("")) {
