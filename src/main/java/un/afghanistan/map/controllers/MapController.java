@@ -49,6 +49,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -335,10 +336,19 @@ public class MapController implements UpdateMapInterface {
                 if (Desktop.isDesktopSupported()) {
                     Desktop.getDesktop().open(file);
                 } else {
-                    System.out.println("Awt Desktop is not supported!");
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Error");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Awt Desktop is not supported!");
+                    alert.show();
+
                 }
             } else {
-                System.out.println("File does not exist!");
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("File does not exist");
+                alert.show();
             }
         } catch (IOException ex) {
             Logger.getLogger(AddPointController.class.getName()).log(Level.SEVERE, null, ex);
@@ -445,11 +455,32 @@ public class MapController implements UpdateMapInterface {
     }
 
     public void deleteAllLocationsAction(ActionEvent actionEvent) {
-        setWindowsLook();
-        int input = JOptionPane.showConfirmDialog(null, "You cannot undo this! Are you sure you want to delete all locations?");
-        if(input == 0) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Are you sure you want to delete all locations?");
+        alert.setContentText("You cannot undo this!");
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
             LocationDAO.getInstance().deleteAllLocations();
-            JOptionPane.showMessageDialog(null, "Locations deleted");
+            Alert alertInfo = new Alert(Alert.AlertType.INFORMATION);
+            alertInfo.setTitle("Confirmation");
+            alertInfo.setHeaderText(null);
+            alertInfo.setContentText("Locations deleted");
+            alertInfo.showAndWait();
         }
+    }
+
+    public void aboutAction(ActionEvent actionEvent) {
+        Stage stage = new Stage();
+        StageUtils.setStage(stage,"About", false, StageStyle.DECORATED, Modality.APPLICATION_MODAL);
+        StageUtils.centerStage(stage, 800, 800);
+        Parent root = FXMLUtils.loadController("fxml/about.fxml");
+        stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
+        stage.setResizable(false);
+        stage.showAndWait();
+    }
+
+    public void closeAction(ActionEvent actionEvent) {
+        System.exit(0);
     }
 }
