@@ -1,9 +1,7 @@
 package un.afghanistan.map.controllers;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import un.afghanistan.map.models.Location;
@@ -11,6 +9,7 @@ import un.afghanistan.map.utility.database.LocationDAO;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.Optional;
 
 public class EditPointController {
     @FXML
@@ -79,13 +78,20 @@ public class EditPointController {
     }
 
     public void deleteButtonAction() {
-        int input = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this location?");
-        if(input == 0) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to delete this location?");
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
             locationTableService.deleteLocation(location);
-            JOptionPane.showMessageDialog(null, "Location deleted");
+            Alert alertInfo = new Alert(Alert.AlertType.INFORMATION);
+            alertInfo.setTitle("Confirmation");
+            alertInfo.setHeaderText(null);
+            alertInfo.setContentText("Location deleted");
+            alertInfo.showAndWait();
             closeWindow();
         }
-
     }
 
     public void browseButtonAction() {
