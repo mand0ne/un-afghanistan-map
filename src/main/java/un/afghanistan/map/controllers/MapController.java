@@ -14,28 +14,27 @@ import com.esri.arcgisruntime.portal.Portal;
 import com.esri.arcgisruntime.portal.PortalItem;
 import com.esri.arcgisruntime.security.UserCredential;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
+import com.jfoenix.controls.JFXProgressBar;
+import com.jfoenix.controls.JFXToggleButton;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-import un.afghanistan.map.App;
 import un.afghanistan.map.gui.BasemapListCell;
 import un.afghanistan.map.interfaces.UpdateMapInterface;
 import un.afghanistan.map.models.Location;
@@ -43,23 +42,29 @@ import un.afghanistan.map.utility.database.LocationDAO;
 import un.afghanistan.map.utility.javafx.FXMLUtils;
 import un.afghanistan.map.utility.javafx.StageUtils;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static javafx.scene.control.PopupControl.USE_COMPUTED_SIZE;
 import static javafx.scene.paint.Color.WHITE;
+import static un.afghanistan.map.App.primaryStage;
 
 
 public class MapController implements UpdateMapInterface {
+    private final GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
+    private final BiFunction<? super Void, Throwable, ? super Void> handle = (obj, ex) -> {
+        System.out.println(ex.getMessage());
+        return null;
+    };
+    @FXML
+    private BorderPane pane;
     @FXML
     private StackPane centerPane;
     @FXML
@@ -67,20 +72,19 @@ public class MapController implements UpdateMapInterface {
     @FXML
     private ListView<Location> locationListView;
     @FXML
-    private Button editPointBtn, resetViewpointAfghanistanButton, resetViewpointKabulButton;
+    private Button editPointBtn;
+    @FXML
+    private JFXToggleButton kabulToggle;
     @FXML
     private Label locationLabel;
-
     private MapView mapView;
     private ArcGISMap map;
     private ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphics;
     private Graphic previouslySelectedGraphic = new Graphic();
     private Callout callout;
-    private final GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
     private Basemap defaultBasemap;
-
-    private ArrayList<Location> allLocations = new ArrayList<>();
     private PictureMarkerSymbol markerSymbol;
+    private JFXProgressBar mapLoader = new JFXProgressBar();
 
     public MapController(MapView mapView) {
         this.mapView = mapView;
@@ -89,6 +93,8 @@ public class MapController implements UpdateMapInterface {
 
     @FXML
     public void initialize() {
+
+        centerPane.getChildren().addAll(mapLoader);
         comboBox.getItems().removeAll(comboBox.getItems());
         comboBox.getItems().addAll("Charted Territory Map", "Dark Gray Canvas", "Light Gray Canvas", "Imagery", "Imagery Hybrid",
                 "National Geographic", "Navigation", "Navigation (Dark mode)", "Newspaper Map",
@@ -156,15 +162,22 @@ public class MapController implements UpdateMapInterface {
             if (portal.getLoadStatus() == LoadStatus.LOADED) {
                 PortalItem mapPortalItem = new PortalItem(portal, "28fa460ad8734437ba8b86f7fdde3e2e");
 
+
+                new Thread(() -> {
+                    fillProgressBar();
+                    Platform.runLater(() -> {
+                        centerPane.getChildren().clear();
+                        centerPane.getChildren().addAll(mapView);
+                        finishLoading();
+                    });
+                }).start();
+
                 // Create a view and set ArcGISMap to it
                 map = new ArcGISMap(mapPortalItem);
                 defaultBasemap = map.getBasemap();
                 System.out.println(defaultBasemap.getName());
                 mapView = new MapView();
                 mapView.setMap(map);
-                centerPane.getChildren().add(mapView);
-
-                finishLoading();
             } else
                 portal.retryLoadAsync();
         });
@@ -172,11 +185,15 @@ public class MapController implements UpdateMapInterface {
         portal.loadAsync();
     }
 
-    private void setWindowsLook() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }catch(Exception ex) {
-            ex.printStackTrace();
+    private void fillProgressBar() {
+        for (int i = 0; i <= 100; i++) {
+            double progress = i * 0.01;
+            Platform.runLater(() -> mapLoader.setProgress(progress));
+            try {
+                Thread.sleep(15);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -191,10 +208,7 @@ public class MapController implements UpdateMapInterface {
         markerSymbol.setHeight(30);
         markerSymbol.setWidth(18);
 
-        LocationDAO locationDAO = LocationDAO.getInstance();
-        allLocations.addAll(locationDAO.getLocations());
-
-        resetViewpointAfghanistan();
+        onKabulToggle();
 
         // Define listeners
         mapView.setOnMouseMoved(mouseEvent -> {
@@ -206,8 +220,7 @@ public class MapController implements UpdateMapInterface {
                         .LatitudeLongitudeFormat.DECIMAL_DEGREES, 5);
 
                 locationLabel.setText("Current coordinates are: " + latLonDecimalDegrees);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
+            } catch (Exception ignored) {
             }
         });
 
@@ -238,35 +251,27 @@ public class MapController implements UpdateMapInterface {
                 System.out.println(ex.getMessage());
             }
         });
-
-
     }
 
     /**
      * Called when "Reset" button is clicked.
-     * Will reset the Viewpoint to a default Point and scale.
+     * Will reset the Viewpoint to a default Point and scale (mode dependent).
      */
-    public void resetViewpointAfghanistan() {
+    @FXML
+    private void resetViewpoint() {
         Viewpoint viewpoint = new Viewpoint(33.9391, 67.7100, 0.83e7);
-        mapView.setViewpointAsync(viewpoint, 2);
+        if (kabulToggle.isSelected())
+            viewpoint = new Viewpoint(34.5249, 69.172251, 2e5);
 
-        resetGraphics(resetViewpointAfghanistanButton, resetViewpointKabulButton, false);
+        mapView.setViewpointAsync(viewpoint, 2);
     }
 
-    public void resetViewpointKabul() {
-        Viewpoint viewpoint = new Viewpoint(34.5249, 69.172251, 2e5);
-        mapView.setViewpointAsync(viewpoint, 2);
+    @FXML
+    private void onKabulToggle() {
+        if(callout != null)
+            callout.dismiss();
 
-        resetGraphics(resetViewpointKabulButton, resetViewpointAfghanistanButton, true);
-    }
-
-    private void resetGraphics(Button mainButton, Button otherButton, boolean condition) {
-        if (mainButton.getBackground().getFills().get(0).getFill().toString().equals("0xbfbabaff")) return;
-
-        mainButton.setStyle("-fx-background-color: #bfbabaff; ");
-        otherButton.setStyle("-fx-background-color: white; ");
-
-        ArrayList<Location> locations = new ArrayList<>(allLocations.stream().filter(location -> location.isInKabul() == condition).collect(Collectors.toList()));
+        ArrayList<Location> locations = LocationDAO.getInstance().getLocations(kabulToggle.isSelected());
 
         locationListView.getItems().clear();
         locationListView.getItems().addAll(locations);
@@ -276,9 +281,11 @@ public class MapController implements UpdateMapInterface {
             Point graphicPoint = new Point(l.getLongitude(), l.getLatitude(), SpatialReference.create(4326));
             Graphic symbolGraphic = new Graphic(graphicPoint, markerSymbol);
             graphicsOverlay.getGraphics().add(symbolGraphic);
-
         }
+
+        resetViewpoint();
     }
+
 
     /**
      * Indicates when a graphic is clicked by outlining the symbol/marker associated with the graphic.
@@ -297,20 +304,20 @@ public class MapController implements UpdateMapInterface {
                             ((Point) (selectedGraphic.getGeometry())).getY(), ((Point) (selectedGraphic.getGeometry())).getX());
                     System.out.println(selectedLocation);
                     locationListView.getSelectionModel().select(selectedLocation);
-                    editPointBtn.setDisable(false);;
+                    editPointBtn.setDisable(false);
 
                 }
 
                 // Show the callout where the user clicked
-                callout.setTitle(selectedLocation.getName());
-                callout.setDetail(selectedLocation.toString());
+                callout.setTitle("Compound: " + selectedLocation.getName());
+                callout.setDetail("Latitude: " + selectedLocation.getLatitude() + "\nLongitude: " + selectedLocation.getLongitude());
                 callout.showCalloutAt(mapPoint, new Duration(500));
 
                 selectedGraphic.setSelected(true);
                 final String filePath = selectedLocation.getFilePath();
                 callout.setOnMouseClicked(mouseEvent -> openFile(new File(filePath)));
 
-                if(mouseClickCount == 2)
+                if (mouseClickCount == 2)
                     openFile(new File(filePath));
 
                 if (selectedGraphic != previouslySelectedGraphic) {
@@ -357,7 +364,7 @@ public class MapController implements UpdateMapInterface {
 
     public void addPointAction() {
         Stage stage = new Stage();
-        StageUtils.setStage(stage,"Add new location", false, StageStyle.UNDECORATED, Modality.APPLICATION_MODAL);
+        StageUtils.setStage(stage, "Add new location", false, StageStyle.UNDECORATED, Modality.APPLICATION_MODAL);
         StageUtils.centerStage(stage, 300, 300);
         Parent root = FXMLUtils.loadCustomController("fxml/addPoint.fxml", c -> new AddPointController(stage));
         stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
@@ -367,7 +374,7 @@ public class MapController implements UpdateMapInterface {
 
     public void editButtonAction() {
         Stage stage = new Stage();
-        StageUtils.setStage(stage,"Edit location", false, StageStyle.UNDECORATED, Modality.APPLICATION_MODAL);
+        StageUtils.setStage(stage, "Edit location", false, StageStyle.UNDECORATED, Modality.APPLICATION_MODAL);
         StageUtils.centerStage(stage, 300, 300);
         Parent root = FXMLUtils.loadCustomController("fxml/editPoint.fxml", c -> new EditPointController(stage,
                 locationListView.getSelectionModel().getSelectedItem()));
@@ -426,10 +433,8 @@ public class MapController implements UpdateMapInterface {
 
     @Override
     public void onAddLocationRequest(Location location) {
-        allLocations.add(location);
-
-        if (location.isInKabul() && resetViewpointAfghanistanButton.getBackground().getFills().get(0).getFill().toString().equals("0xbfbabaff")) return;
-        if (!location.isInKabul() && resetViewpointKabulButton.getBackground().getFills().get(0).getFill().toString().equals("0xbfbabaff")) return;
+        if (location.isInKabul() && !kabulToggle.isSelected() || !location.isInKabul() && kabulToggle.isSelected())
+            return;
 
         locationListView.getItems().add(location);
 
@@ -440,18 +445,17 @@ public class MapController implements UpdateMapInterface {
 
     @Override
     public void onDeleteLocationRequest(Location location) {
-        allLocations.remove(location);
         locationListView.getItems().removeAll(location);
         graphicsOverlay.getGraphics().remove(previouslySelectedGraphic);
         callout.dismiss();
     }
 
-    public void loadDataAction(ActionEvent actionEvent) {
-        LocationDAO.getInstance().loadDataFromFile(App.primaryStage);
+    public void loadDataAction() {
+        LocationDAO.getInstance().loadDataFromFile(primaryStage);
     }
 
-    public void saveDataAction(ActionEvent actionEvent) {
-        LocationDAO.getInstance().saveDataToFile(App.primaryStage);
+    public void saveDataAction() {
+        LocationDAO.getInstance().saveDataToFile(primaryStage);
     }
 
     public void deleteAllLocationsAction(ActionEvent actionEvent) {
@@ -460,7 +464,7 @@ public class MapController implements UpdateMapInterface {
         alert.setHeaderText("Are you sure you want to delete all locations?");
         alert.setContentText("You cannot undo this!");
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
+        if (result.isPresent() && result.get() == ButtonType.OK) {
             LocationDAO.getInstance().deleteAllLocations();
             Alert alertInfo = new Alert(Alert.AlertType.INFORMATION);
             alertInfo.setTitle("Confirmation");
@@ -470,9 +474,9 @@ public class MapController implements UpdateMapInterface {
         }
     }
 
-    public void aboutAction(ActionEvent actionEvent) {
+    public void aboutAction() {
         Stage stage = new Stage();
-        StageUtils.setStage(stage,"About", false, StageStyle.DECORATED, Modality.APPLICATION_MODAL);
+        StageUtils.setStage(stage, "About", false, StageStyle.DECORATED, Modality.APPLICATION_MODAL);
         StageUtils.centerStage(stage, 800, 800);
         Parent root = FXMLUtils.loadController("fxml/about.fxml");
         stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
@@ -480,7 +484,7 @@ public class MapController implements UpdateMapInterface {
         stage.showAndWait();
     }
 
-    public void closeAction(ActionEvent actionEvent) {
+    public void closeAction() {
         System.exit(0);
     }
 }

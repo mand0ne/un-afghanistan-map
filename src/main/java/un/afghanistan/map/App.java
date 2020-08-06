@@ -18,8 +18,13 @@ package un.afghanistan.map;
 
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import com.esri.arcgisruntime.mapping.view.MapView;
@@ -27,6 +32,7 @@ import javafx.stage.StageStyle;
 import un.afghanistan.map.controllers.MapController;
 import un.afghanistan.map.utility.javafx.FXMLUtils;
 import un.afghanistan.map.utility.javafx.StageUtils;
+
 
 public class App extends Application {
 
@@ -41,11 +47,29 @@ public class App extends Application {
         ArcGISRuntimeEnvironment.setLicense("runtimelite,1000,rud5005476303,none,XXMFA0PL4P2J4P7EJ203");
 
         primaryStage = stage;
-        StageUtils.setStage(primaryStage, "UN Afghanistan Map", false, StageStyle.DECORATED, null);
+        StageUtils.setStage(primaryStage, "UN Afghanistan Map", true, StageStyle.DECORATED, null);
         primaryStage.getIcons().add(new Image("/un/afghanistan/map/img/unLogo.png"));
         StageUtils.centerStage(primaryStage, 1300, 800);
-        primaryStage.setScene(new Scene(FXMLUtils.loadCustomController("fxml/map.fxml", c -> new MapController(mapView))));
+        Parent root = FXMLUtils.loadCustomController("fxml/map.fxml", c -> new MapController(mapView));
+
+        primaryStage.setScene(new Scene(root));
         primaryStage.show();
+
+        primaryStage.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                if(!primaryStage.maximizedProperty().get())
+                    primaryStage.setWidth(1300);
+            }
+        });
+
+        primaryStage.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                if(!primaryStage.maximizedProperty().get())
+                    primaryStage.setHeight(800);
+            }
+        });
     }
 
     /**

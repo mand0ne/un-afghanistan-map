@@ -1,0 +1,14 @@
+#locationListView {
+    -fx-background-image: url("/un/afghanistan/map/img/unama.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 175 175;
+    -fx-background-position: center center;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+}
+
+.list-cell:selected {
+    -fx-background-color: #4c97ba;
+}

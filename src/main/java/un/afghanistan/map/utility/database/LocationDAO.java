@@ -3,14 +3,11 @@ package un.afghanistan.map.utility.database;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
 import un.afghanistan.map.interfaces.UpdateMapInterface;
 import un.afghanistan.map.models.Location;
 
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -72,7 +69,7 @@ public class LocationDAO {
     }
 
     private void prepareStatements() throws SQLException {
-        getLocations = conn.prepareStatement("SELECT l.id, l.name, l.latitude, l.longitude, f.path, l.is_in_kabul FROM location l, file f WHERE l.id = f.point_id");
+        getLocations = conn.prepareStatement("SELECT l.id, l.name, l.latitude, l.longitude, f.path, l.is_in_kabul FROM location l, file f WHERE l.id = f.point_id AND is_in_kabul = ?");
         addLocation = conn.prepareStatement("INSERT INTO location (name, latitude, longitude, is_in_kabul) VALUES (?,?,?,?);");
         editLocation = conn.prepareStatement("UPDATE location set name=?, longitude=?, latitude=?, is_in_kabul=? where id = ?");
         deleteLocation = conn.prepareStatement("DELETE FROM location WHERE id = ?");
@@ -101,10 +98,10 @@ public class LocationDAO {
         instance = null;
     }
 
-    public ArrayList<Location> getLocations() {
+    public ArrayList<Location> getLocations(boolean isInKabul) {
         ArrayList<Location> locations = new ArrayList<>();
-
         try {
+            getLocations.setInt(1, isInKabul ? 1 : 0);
             ResultSet result = getLocations.executeQuery();
             while (result.next()) {
                 Location location = new Location(result.getInt(1), result.getString(2), result.getDouble(3),
@@ -132,7 +129,7 @@ public class LocationDAO {
             while (result.next())
                 latestId = result.getInt(1);
 
-            if(!filePath.equals("")) {
+            if (!filePath.equals("")) {
                 addFile.setString(1, filePath);
                 addFile.setInt(2, latestId);
                 addFile.executeUpdate();
@@ -160,8 +157,8 @@ public class LocationDAO {
             editLocation.setString(1, newLocation.getName());
             editLocation.setDouble(2, newLocation.getLongitude());
             editLocation.setDouble(3, newLocation.getLatitude());
-            editLocation.setInt(4, newLocation.getId());
-            editLocation.setBoolean(5, newLocation.isInKabul());
+            editLocation.setBoolean(4, newLocation.isInKabul());
+            editLocation.setInt(5, newLocation.getId());
             editLocation.executeUpdate();
 
             editFile.setString(1, newLocation.getFilePath());
@@ -194,12 +191,12 @@ public class LocationDAO {
         return location;
     }
 
-    public boolean doesLocationExistInDatabase(double latitude, double longitude) {
+    public boolean doesExist(double latitude, double longitude) {
         try {
             fetchLocatinByLatLong.setDouble(1, latitude);
             fetchLocatinByLatLong.setDouble(2, longitude);
             ResultSet result = fetchLocatinByLatLong.executeQuery();
-            if(result.next())
+            if (result.next())
                 return true;
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -226,9 +223,9 @@ public class LocationDAO {
                     line = line.replace("\"", "");
                     String[] location = line.split("\\?");
                     System.out.println(location[0] + " " + location[1] + " " + location[2] + " " + location[3] + " " + location[4]);
-                    if(!doesLocationExistInDatabase(Double.parseDouble(location[2]), Double.parseDouble(location[3]))) {
+                    if (!doesExist(Double.parseDouble(location[2]), Double.parseDouble(location[3]))) {
 
-                        if(location.length == 6)
+                        if (location.length == 6)
                             this.addLocation(location[1], Double.parseDouble(location[2]), Double.parseDouble(location[3]), location[4], location[5].equals("1"));
                         else
                             this.addLocation(location[1], Double.parseDouble(location[2]), Double.parseDouble(location[3]), "", false);
@@ -244,47 +241,39 @@ public class LocationDAO {
         File fileToSave = fileChooser.showSaveDialog(primaryStage);
 
         if (fileToSave != null) {
-                try {
-                    // Execute query.
-                    ResultSet results    = getLocations.executeQuery();
+            try {
+                // Execute query.
+                ResultSet results = getLocations.executeQuery();
 
-                    // Open CSV file.
-                    BufferedWriter writer = Files.newBufferedWriter(Paths.get(fileToSave.getAbsolutePath()));
+                // Open CSV file.
+                BufferedWriter writer = Files.newBufferedWriter(Paths.get(fileToSave.getAbsolutePath()));
 
-                    // Add table headers to CSV file.
-                    CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-                            .withHeader(results.getMetaData()).withQuoteMode(QuoteMode.ALL).withDelimiter('?'));
+                // Add table headers to CSV file.
+                CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
+                        .withHeader(results.getMetaData()).withQuoteMode(QuoteMode.ALL).withDelimiter('?'));
 
-                    // Add data rows to CSV file.
-                    while (results.next()) {
-                        csvPrinter.printRecord(
-                                results.getInt(1),
-                                results.getString(2),
-                                results.getDouble(3),
-                                results.getDouble(4),
-                                results.getString(5),
-                                results.getBoolean(6) ? "1" : "0");
-                    }
-                    // Close CSV file.
-                    csvPrinter.flush();
-                    csvPrinter.close();
-
-                    // Message stating export successful.
-                    System.out.println("Data export successful.");
-
-                } catch (SQLException e) {
-
-                    // Message stating export unsuccessful.
-                    System.out.println("Data export unsuccessful.");
-                    System.exit(0);
-
-                } catch (IOException e) {
-
-                    // Message stating export unsuccessful.
-                    System.out.println("Data export unsuccessful.");
-                    System.exit(0);
-
+                // Add data rows to CSV file.
+                while (results.next()) {
+                    csvPrinter.printRecord(
+                            results.getInt(1),
+                            results.getString(2),
+                            results.getDouble(3),
+                            results.getDouble(4),
+                            results.getString(5),
+                            results.getBoolean(6) ? "1" : "0");
                 }
+                // Close CSV file.
+                csvPrinter.flush();
+                csvPrinter.close();
+
+                // Message stating export successful.
+                System.out.println("Data export successful.");
+
+            } catch (SQLException | IOException e) {
+                // Message stating export unsuccessful.
+                System.out.println("Data export unsuccessful.");
+                System.exit(0);
+            }
 
         }
 

@@ -62,7 +62,7 @@ public class AddPointController {
         boolean isInKabul = isInKabulCheckbox.isSelected();
 
         if (validInputs(name, latitude, longitude, file) &&
-                !locationTableService.doesLocationExistInDatabase(Double.parseDouble(latitude), Double.parseDouble(longitude))) {
+                !locationTableService.doesExist(Double.parseDouble(latitude), Double.parseDouble(longitude))) {
             locationTableService.addLocation(name, Double.parseDouble(latitude), Double.parseDouble(longitude), file, isInKabul);
             closeWindow();
         }
