@@ -54,7 +54,7 @@ public class FXMLUtils {
         return new CustomFXMLLoader<>(fxml);
     }
 
-    public static <T>CustomFXMLLoader<T> getCustomLoader(String fxml, Callback<Class<?>, Object> controllerFactory) {
+    public static <T> CustomFXMLLoader<T> getCustomLoader(String fxml, Callback<Class<?>, Object> controllerFactory) {
         return new CustomFXMLLoader<>(fxml, controllerFactory);
     }
 }

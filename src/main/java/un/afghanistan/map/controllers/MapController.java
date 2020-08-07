@@ -84,7 +84,7 @@ public class MapController implements UpdateMapInterface {
     private Callout callout;
     private Basemap defaultBasemap;
     private PictureMarkerSymbol markerSymbol;
-    private JFXProgressBar mapLoader = new JFXProgressBar();
+    private final JFXProgressBar mapLoader = new JFXProgressBar();
 
     public MapController(MapView mapView) {
         this.mapView = mapView;
@@ -268,7 +268,7 @@ public class MapController implements UpdateMapInterface {
 
     @FXML
     private void onKabulToggle() {
-        if(callout != null)
+        if (callout != null)
             callout.dismiss();
 
         ArrayList<Location> locations = LocationDAO.getInstance().getLocations(kabulToggle.isSelected());
@@ -358,7 +358,7 @@ public class MapController implements UpdateMapInterface {
                 alert.show();
             }
         } catch (IOException ex) {
-            Logger.getLogger(AddPointController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MapController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -366,7 +366,7 @@ public class MapController implements UpdateMapInterface {
         Stage stage = new Stage();
         StageUtils.setStage(stage, "Add new location", false, StageStyle.UNDECORATED, Modality.APPLICATION_MODAL);
         StageUtils.centerStage(stage, 300, 300);
-        Parent root = FXMLUtils.loadCustomController("fxml/addPoint.fxml", c -> new AddPointController(stage));
+        Parent root = FXMLUtils.loadCustomController("fxml/addEditPoint.fxml", c -> new LocationPointController(stage, false));
         stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
         stage.setResizable(false);
         stage.showAndWait();
@@ -376,8 +376,8 @@ public class MapController implements UpdateMapInterface {
         Stage stage = new Stage();
         StageUtils.setStage(stage, "Edit location", false, StageStyle.UNDECORATED, Modality.APPLICATION_MODAL);
         StageUtils.centerStage(stage, 300, 300);
-        Parent root = FXMLUtils.loadCustomController("fxml/editPoint.fxml", c -> new EditPointController(stage,
-                locationListView.getSelectionModel().getSelectedItem()));
+        Parent root = FXMLUtils.loadCustomController("fxml/addEditPoint.fxml", c -> new LocationPointController(stage,
+                locationListView.getSelectionModel().getSelectedItem(), true));
         stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
         stage.setResizable(false);
         stage.showAndWait();

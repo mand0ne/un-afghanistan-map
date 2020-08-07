@@ -17,14 +17,10 @@ import java.util.Scanner;
 
 public class LocationDAO {
     private static LocationDAO instance = null;
+    private final FileChooser fileChooser = new FileChooser();
     private PreparedStatement addLocation, editLocation, deleteLocation, getLocations, fetchLatestLocation, getSelectedLocation, addFile, editFile, fetchLocatinByLatLong, deleteAllFromLocation, deleteAllFromFile;
     private Connection conn;
     private UpdateMapInterface updateMapInterface;
-    private final FileChooser fileChooser = new FileChooser();
-
-    public void setUpdateMapInterface(UpdateMapInterface updateMapInterface) {
-        this.updateMapInterface = updateMapInterface;
-    }
 
     private LocationDAO() {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV File", "*.csv"));
@@ -44,18 +40,38 @@ public class LocationDAO {
         }
     }
 
+    public static LocationDAO getInstance() {
+        if (instance == null) instance = new LocationDAO();
+        return instance;
+    }
+
+    public static void removeInstance() {
+        if (instance != null) {
+            try {
+                instance.conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        instance = null;
+    }
+
+    public void setUpdateMapInterface(UpdateMapInterface updateMapInterface) {
+        this.updateMapInterface = updateMapInterface;
+    }
+
     private void regenerateDatabase() {
         Scanner ulaz = null;
         try {
             ulaz = new Scanner(new FileInputStream("src/main/resources/un/afghanistan/map/database/generateDatabase.sql"));
-            StringBuilder sqlUpit = new StringBuilder("");
+            StringBuilder sqlUpit = new StringBuilder();
             while (ulaz.hasNext()) {
                 sqlUpit.append(ulaz.nextLine());
                 if (sqlUpit.charAt(sqlUpit.length() - 1) == ';') {
                     try {
                         Statement stmt = conn.createStatement();
                         stmt.execute(sqlUpit.toString());
-                        sqlUpit = new StringBuilder("");
+                        sqlUpit = new StringBuilder();
                     } catch (SQLException e) {
                         System.out.println(conn == null);
                         e.printStackTrace();
@@ -80,22 +96,6 @@ public class LocationDAO {
         fetchLocatinByLatLong = conn.prepareStatement("SELECT id FROM location WHERE latitude = ? and longitude = ?");
         deleteAllFromFile = conn.prepareStatement("DELETE FROM file");
         deleteAllFromLocation = conn.prepareStatement("DELETE FROM location");
-    }
-
-    public static LocationDAO getInstance() {
-        if (instance == null) instance = new LocationDAO();
-        return instance;
-    }
-
-    public static void removeInstance() {
-        if (instance != null) {
-            try {
-                instance.conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        instance = null;
     }
 
     public ArrayList<Location> getLocations(boolean isInKabul) {
