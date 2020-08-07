@@ -4,7 +4,7 @@
     <groupId>org.un</groupId>
     <artifactId>afghanistan.map</artifactId>
     <packaging>jar</packaging>
-    <version>1.0</version>
+    <version>1.6</version>
     <name>UN Afghanistan Map</name>
     <url>http://maven.apache.org</url>
     <properties>

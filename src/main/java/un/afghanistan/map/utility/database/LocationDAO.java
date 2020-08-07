@@ -5,6 +5,7 @@ import javafx.stage.Stage;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
+import un.afghanistan.map.App;
 import un.afghanistan.map.interfaces.UpdateMapInterface;
 import un.afghanistan.map.models.Location;
 
@@ -63,7 +64,7 @@ public class LocationDAO {
     private void regenerateDatabase() {
         Scanner ulaz = null;
         try {
-            ulaz = new Scanner(new FileInputStream("src/main/resources/un/afghanistan/map/database/generateDatabase.sql"));
+            ulaz = new Scanner(App.class.getResourceAsStream("database/generateDatabase.sql"));
             StringBuilder sqlUpit = new StringBuilder();
             while (ulaz.hasNext()) {
                 sqlUpit.append(ulaz.nextLine());
@@ -79,7 +80,7 @@ public class LocationDAO {
                 }
             }
             ulaz.close();
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -46,7 +46,7 @@ public class App extends Application {
 
         primaryStage = stage;
         StageUtils.setStage(primaryStage, "UN Afghanistan Map", true, StageStyle.DECORATED, null);
-        primaryStage.getIcons().add(new Image("/un/afghanistan/map/img/unLogo.png"));
+        primaryStage.getIcons().add(new Image(App.class.getResourceAsStream("img/unLogo.png")));
         StageUtils.centerStage(primaryStage, 1300, 800);
         Parent root = FXMLUtils.loadCustomController("fxml/map.fxml", c -> new MapController(mapView));
 
@@ -77,10 +77,7 @@ public class App extends Application {
     public void stop() {
         try {
             super.stop();
-
-            if (mapView != null)
-                mapView.dispose();
-
+            mapView.dispose();
         } catch (Exception e) {
             e.printStackTrace();
         }

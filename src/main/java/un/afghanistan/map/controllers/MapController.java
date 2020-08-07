@@ -35,6 +35,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import un.afghanistan.map.App;
 import un.afghanistan.map.gui.BasemapListCell;
 import un.afghanistan.map.interfaces.UpdateMapInterface;
 import un.afghanistan.map.models.Location;
@@ -97,8 +98,7 @@ public class MapController implements UpdateMapInterface {
         centerPane.getChildren().addAll(mapLoader);
         comboBox.getItems().removeAll(comboBox.getItems());
         comboBox.getItems().addAll("Charted Territory Map", "Dark Gray Canvas", "Light Gray Canvas", "Imagery", "Imagery Hybrid",
-                "National Geographic", "Navigation", "Navigation (Dark mode)", "Newspaper Map",
-                "OpenStreetMap", "Streets", "Streets (Night)", "Terrain with Labels", "Topographic");
+                "National Geographic", "Navigation", "OpenStreetMap", "Streets", "Streets (Night)", "Terrain with Labels", "Topographic");
         comboBox.setCellFactory(c -> new BasemapListCell());
 
         // Cutomize listview
@@ -114,7 +114,7 @@ public class MapController implements UpdateMapInterface {
                         setGraphic(null);
                     } else {
                         setText(l.getName());
-                        ImageView imageView = new ImageView(new Image("/un/afghanistan/map/img/marker.png"));
+                        ImageView imageView = new ImageView(new Image(App.class.getResourceAsStream("img/marker.png")));
                         imageView.setFitWidth(15);
                         imageView.setFitHeight(25);
                         setGraphic(imageView);
@@ -124,9 +124,7 @@ public class MapController implements UpdateMapInterface {
 
             cell.setOnMouseClicked(mouseEvent -> {
                 if (!cell.isEmpty()) {
-                    System.out.println("You clicked on cell");
                     Location l = cell.getItem();
-                    System.out.println(l.getName());
                     Viewpoint viewpoint = new Viewpoint(l.getLatitude(), l.getLongitude(), 0.83e6);
 
                     // Take 2 seconds to move to viewpoint
@@ -175,7 +173,6 @@ public class MapController implements UpdateMapInterface {
                 // Create a view and set ArcGISMap to it
                 map = new ArcGISMap(mapPortalItem);
                 defaultBasemap = map.getBasemap();
-                System.out.println(defaultBasemap.getName());
                 mapView = new MapView();
                 mapView.setMap(map);
             } else
@@ -203,7 +200,7 @@ public class MapController implements UpdateMapInterface {
         mapView.getGraphicsOverlays().add(graphicsOverlay);
 
         // Create picture marker symbol
-        Image flag = new Image("/un/afghanistan/map/img/marker.png");
+        Image flag = new Image(App.class.getResourceAsStream("img/marker.png"));
         markerSymbol = new PictureMarkerSymbol(flag);
         markerSymbol.setHeight(30);
         markerSymbol.setWidth(18);
@@ -234,7 +231,6 @@ public class MapController implements UpdateMapInterface {
 
         mapView.setOnMouseClicked(mouseEvent -> {
             try {
-                System.out.println("A KLIKNO SAM GA JARA: " + mouseEvent.getClickCount());
                 if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.isStillSincePress()) {
                     // Create a point from location clicked
                     Point2D screenPoint = new Point2D(mouseEvent.getX(), mouseEvent.getY());
@@ -302,7 +298,7 @@ public class MapController implements UpdateMapInterface {
                 if (selectedGraphic.getGeometry().getDimension().equals(GeometryDimension.POINT) && selectedLocation == null) {
                     selectedLocation = LocationDAO.getInstance().getSelectedLocation(
                             ((Point) (selectedGraphic.getGeometry())).getY(), ((Point) (selectedGraphic.getGeometry())).getX());
-                    System.out.println(selectedLocation);
+
                     locationListView.getSelectionModel().select(selectedLocation);
                     editPointBtn.setDisable(false);
 
@@ -407,12 +403,6 @@ public class MapController implements UpdateMapInterface {
             case "Navigation":
                 map.setBasemap(Basemap.createNavigationVector());
                 break;
-            case "Navigation (Dark mode)":
-                map.setBasemap(Basemap.createNavigationVector()); // NEMA?
-                break;
-            case "Newspaper Map":
-                map.setBasemap(Basemap.createNavigationVector()); // NEMA?
-                break;
             case "OpenStreetMap":
                 map.setBasemap(Basemap.createOpenStreetMap());
                 break;
@@ -471,6 +461,9 @@ public class MapController implements UpdateMapInterface {
             alertInfo.setHeaderText(null);
             alertInfo.setContentText("Locations deleted");
             alertInfo.showAndWait();
+
+            graphicsOverlay.getGraphics().clear();
+            locationListView.getItems().clear();
         }
     }
 
