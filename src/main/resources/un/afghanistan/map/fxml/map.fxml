@@ -22,7 +22,8 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane fx:id="pane" style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="un.afghanistan.map.controllers.MapController">
+<BorderPane fx:id="pane" style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="un.afghanistan.map.controllers.MapController">
 
     <top>
         <VBox alignment="CENTER" maxHeight="100.0" BorderPane.alignment="CENTER">
@@ -31,132 +32,156 @@
                     <menus>
                         <Menu mnemonicParsing="false" text="File">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#closeAction" text="Close" />
-                                <MenuItem mnemonicParsing="false" onAction="#loadDataAction" text="Load Data" />
-                                <MenuItem mnemonicParsing="false" onAction="#saveDataAction" text="Save Data" />
+                                <MenuItem mnemonicParsing="false" onAction="#closeAction" text="Close"/>
+                                <MenuItem mnemonicParsing="false" onAction="#loadDataAction" text="Load Data"/>
+                                <MenuItem mnemonicParsing="false" onAction="#saveDataAction" text="Save Data"/>
                             </items>
                         </Menu>
                         <Menu mnemonicParsing="false" text="Edit">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#deleteAllLocationsAction" text="Delete All Locations" />
+                                <MenuItem mnemonicParsing="false" onAction="#deleteAllLocationsAction"
+                                          text="Delete All Locations"/>
                             </items>
                         </Menu>
                         <Menu mnemonicParsing="false" text="Help">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#aboutAction" text="About" />
-                                <MenuItem mnemonicParsing="false" onAction="#documentationAction" text="Documentation" />
+                                <MenuItem mnemonicParsing="false" onAction="#aboutAction" text="About"/>
+                                <MenuItem mnemonicParsing="false" onAction="#documentationAction" text="Documentation"/>
                             </items>
                         </Menu>
                     </menus>
                 </MenuBar>
-                <Text fill="WHITE" mouseTransparent="true" strokeType="OUTSIDE" strokeWidth="0.0" text="UNAMA" textAlignment="CENTER">
+                <Text fill="WHITE" mouseTransparent="true" strokeType="OUTSIDE" strokeWidth="0.0" text="UNAMA"
+                      textAlignment="CENTER">
                     <font>
-                        <Font name="System Bold" size="24.0" />
+                        <Font name="System Bold" size="24.0"/>
                     </font>
                     <VBox.margin>
-                        <Insets top="5.0" />
+                        <Insets top="5.0"/>
                     </VBox.margin>
                 </Text>
-                  <GridPane alignment="CENTER" style="-fx-background-color: #123456;">
-                      <columnConstraints>
-                          <ColumnConstraints halignment="LEFT" percentWidth="20.0" />
-                          <ColumnConstraints halignment="RIGHT" percentWidth="80.0" />
-                      </columnConstraints>
-                      <rowConstraints>
-                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      </rowConstraints>
-                      <children>
-                          <ToolBar prefWidth="160.0" style="-fx-background-color: #123456;">
-                              <items>
-                                  <JFXButton fx:id="addPointBtn" alignment="CENTER" onAction="#addPointAction" prefWidth="75.0" style="-fx-background-color: white;" text="Add" textAlignment="CENTER" textFill="#123456">
-                                      <font>
-                                          <Font size="14.0" />
-                                      </font>
-                                      <graphic>
-                                          <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                                              <image>
-                                                  <Image url="@../img/addIcon.png" />
-                                              </image>
-                                          </ImageView>
-                                      </graphic>
-                                  </JFXButton>
-                                  <JFXButton fx:id="editPointBtn" alignment="CENTER" disable="true" layoutX="10.0" layoutY="24.0" onAction="#editButtonAction" prefWidth="75.0" style="-fx-background-color: white;" text="Edit" textAlignment="CENTER" textFill="#123456">
-                                      <font>
-                                          <Font size="14.0" />
-                                      </font>
-                                      <graphic>
-                                          <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                                              <image>
-                                                  <Image url="@../img/editIcon.png" />
-                                              </image>
-                                          </ImageView>
-                                      </graphic>
-                                  </JFXButton>
-                              </items>
-                              <GridPane.margin>
-                                  <Insets left="10.0" />
-                              </GridPane.margin>
-                          </ToolBar>
-                          <ButtonBar buttonMinWidth="75.0" buttonOrder="" nodeOrientation="LEFT_TO_RIGHT" scaleShape="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
-                              <buttons>
-                        <Label alignment="CENTER_RIGHT" nodeOrientation="LEFT_TO_RIGHT" text="Afghanistan map" textFill="WHITE">
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                        </Label>
-                        <JFXToggleButton fx:id="kabulToggle" alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" onAction="#onKabulToggle" prefHeight="60.0" prefWidth="140.0" text="Kabul map" textFill="WHITE" toggleColor="#ad027a" toggleLineColor="#c278a8" unToggleColor="#009688" unToggleLineColor="#77c2bb">
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                           <padding>
-                              <Insets right="15.0" />
-                           </padding>
-                        </JFXToggleButton>
-                                  <JFXButton fx:id="resetViewpoint" alignment="CENTER" maxWidth="125.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#resetViewpoint" prefHeight="30.0" prefWidth="125.0" style="-fx-background-color: WHITE;" text="Reset viewpoint" textFill="#123456">
-                                      <graphic>
-                                          <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                                              <image>
-                                                  <Image url="@../img/resetPosition.png" />
-                                              </image>
-                                          </ImageView>
-                                      </graphic>
-                                  </JFXButton>
-                                  <ComboBox fx:id="comboBox" maxWidth="125.0" nodeOrientation="RIGHT_TO_LEFT" onAction="#changeBasemapStyle" prefHeight="30.0" prefWidth="125.0" promptText="Basemap style" style="-fx-background-color: WHITE;" visibleRowCount="5" />
-                              </buttons>
-                     <GridPane.margin>
-                        <Insets right="15.0" />
-                     </GridPane.margin>
-                          </ButtonBar>
-                      </children>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
-                  </GridPane>
+                <GridPane alignment="CENTER" style="-fx-background-color: #123456;">
+                    <columnConstraints>
+                        <ColumnConstraints halignment="LEFT" percentWidth="20.0"/>
+                        <ColumnConstraints halignment="RIGHT" percentWidth="80.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <children>
+                        <ToolBar prefWidth="160.0" style="-fx-background-color: #123456;">
+                            <items>
+                                <JFXButton fx:id="addPointBtn" alignment="CENTER" onAction="#addPointAction"
+                                           prefWidth="75.0" style="-fx-background-color: white;" text="Add"
+                                           textAlignment="CENTER" textFill="#123456">
+                                    <font>
+                                        <Font size="14.0"/>
+                                    </font>
+                                    <graphic>
+                                        <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true"
+                                                   preserveRatio="true">
+                                            <image>
+                                                <Image url="@../img/addIcon.png"/>
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                </JFXButton>
+                                <JFXButton fx:id="editPointBtn" alignment="CENTER" disable="true" layoutX="10.0"
+                                           layoutY="24.0" onAction="#editButtonAction" prefWidth="75.0"
+                                           style="-fx-background-color: white;" text="Edit" textAlignment="CENTER"
+                                           textFill="#123456">
+                                    <font>
+                                        <Font size="14.0"/>
+                                    </font>
+                                    <graphic>
+                                        <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true"
+                                                   preserveRatio="true">
+                                            <image>
+                                                <Image url="@../img/editIcon.png"/>
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                </JFXButton>
+                            </items>
+                            <GridPane.margin>
+                                <Insets left="10.0"/>
+                            </GridPane.margin>
+                        </ToolBar>
+                        <ButtonBar buttonMinWidth="75.0" buttonOrder="" nodeOrientation="LEFT_TO_RIGHT"
+                                   scaleShape="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
+                            <buttons>
+                                <Label alignment="CENTER_RIGHT" nodeOrientation="LEFT_TO_RIGHT" text="Afghanistan map"
+                                       textFill="WHITE">
+                                    <font>
+                                        <Font size="13.0"/>
+                                    </font>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                </Label>
+                                <JFXToggleButton fx:id="kabulToggle" alignment="CENTER_LEFT"
+                                                 nodeOrientation="LEFT_TO_RIGHT" onAction="#onKabulToggle"
+                                                 prefHeight="60.0" prefWidth="140.0" text="Kabul map" textFill="WHITE"
+                                                 toggleColor="#ad027a" toggleLineColor="#c278a8" unToggleColor="#009688"
+                                                 unToggleLineColor="#77c2bb">
+                                    <font>
+                                        <Font size="13.0"/>
+                                    </font>
+                                    <padding>
+                                        <Insets right="15.0"/>
+                                    </padding>
+                                </JFXToggleButton>
+                                <JFXButton fx:id="resetViewpoint" alignment="CENTER" maxWidth="125.0"
+                                           nodeOrientation="LEFT_TO_RIGHT" onAction="#resetViewpoint" prefHeight="30.0"
+                                           prefWidth="125.0" style="-fx-background-color: WHITE;" text="Reset viewpoint"
+                                           textFill="#123456">
+                                    <graphic>
+                                        <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true"
+                                                   preserveRatio="true">
+                                            <image>
+                                                <Image url="@../img/resetPosition.png"/>
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                </JFXButton>
+                                <ComboBox fx:id="comboBox" maxWidth="125.0" nodeOrientation="RIGHT_TO_LEFT"
+                                          onAction="#changeBasemapStyle" prefHeight="30.0" prefWidth="125.0"
+                                          promptText="Basemap style" style="-fx-background-color: WHITE;"
+                                          visibleRowCount="5"/>
+                            </buttons>
+                            <GridPane.margin>
+                                <Insets right="15.0"/>
+                            </GridPane.margin>
+                        </ButtonBar>
+                    </children>
+                    <VBox.margin>
+                        <Insets/>
+                    </VBox.margin>
+                </GridPane>
             </children>
         </VBox>
     </top>
     <left>
-        <ListView fx:id="locationListView" mouseTransparent="false" prefWidth="200.0" stylesheets="@../css/map.css" BorderPane.alignment="CENTER">
+        <ListView fx:id="locationListView" mouseTransparent="false" prefWidth="200.0" stylesheets="@../css/map.css"
+                  BorderPane.alignment="CENTER">
             <BorderPane.margin>
-                <Insets bottom="25.0" left="15.0" top="30.0" />
+                <Insets bottom="25.0" left="15.0" top="30.0"/>
             </BorderPane.margin>
         </ListView>
     </left>
     <center>
         <VBox style="-fx-background-color: #123456;" BorderPane.alignment="CENTER">
             <children>
-                <Label fx:id="locationLabel" style="-fx-background-color: #123456;" text="Current location" textFill="WHITE">
+                <Label fx:id="locationLabel" style="-fx-background-color: #123456;" text="Current location"
+                       textFill="WHITE">
                     <font>
-                        <Font name="Arial Bold" size="12.0" />
+                        <Font name="Arial Bold" size="12.0"/>
                     </font>
                 </Label>
-                <StackPane fx:id="centerPane" prefHeight="3000.0" style="-fx-background-color: white;" />
+                <StackPane fx:id="centerPane" prefHeight="3000.0" style="-fx-background-color: white;"/>
             </children>
             <BorderPane.margin>
-                <Insets bottom="25.0" left="15.0" right="15.0" top="15.0" />
+                <Insets bottom="25.0" left="15.0" right="15.0" top="15.0"/>
             </BorderPane.margin>
         </VBox>
     </center>
