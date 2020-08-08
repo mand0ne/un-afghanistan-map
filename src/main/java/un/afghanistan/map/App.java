@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Esri
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -19,8 +19,6 @@ package un.afghanistan.map;
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -53,20 +51,14 @@ public class App extends Application {
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
 
-        primaryStage.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                if (!primaryStage.maximizedProperty().get())
-                    primaryStage.setWidth(1300);
-            }
+        primaryStage.widthProperty().addListener((observableValue, number, t1) -> {
+            if (!primaryStage.maximizedProperty().get())
+                primaryStage.setWidth(1300);
         });
 
-        primaryStage.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                if (!primaryStage.maximizedProperty().get())
-                    primaryStage.setHeight(800);
-            }
+        primaryStage.heightProperty().addListener((observableValue, number, t1) -> {
+            if (!primaryStage.maximizedProperty().get())
+                primaryStage.setHeight(800);
         });
     }
 

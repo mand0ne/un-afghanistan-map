@@ -31,24 +31,12 @@ public class Location {
         return id.get();
     }
 
-    public void setId(int id) {
-        this.id.set(id);
-    }
-
-    public SimpleIntegerProperty idProperty() {
-        return id;
-    }
-
     public String getName() {
         return name.get();
     }
 
     public void setName(String name) {
         this.name.set(name);
-    }
-
-    public SimpleStringProperty nameProperty() {
-        return name;
     }
 
     public double getLatitude() {
@@ -59,32 +47,12 @@ public class Location {
         this.latitude.set(latitude);
     }
 
-    public SimpleDoubleProperty latitudeProperty() {
-        return latitude;
-    }
-
     public double getLongitude() {
         return longitude.get();
     }
 
-    public void setLongitude(double longitude) {
-        this.longitude.set(longitude);
-    }
-
-    public SimpleDoubleProperty longitudeProperty() {
-        return longitude;
-    }
-
     public String getFilePath() {
         return filePath.get();
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath.set(filePath);
-    }
-
-    public SimpleStringProperty filePathProperty() {
-        return filePath;
     }
 
     public boolean isInKabul() {
@@ -93,10 +61,6 @@ public class Location {
 
     public SimpleBooleanProperty isInKabulProperty() {
         return isInKabul;
-    }
-
-    public void setIsInKabul(boolean isInKabul) {
-        this.isInKabul.set(isInKabul);
     }
 
     @Override

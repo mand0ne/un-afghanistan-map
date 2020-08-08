@@ -19,7 +19,7 @@ import java.util.Scanner;
 public class LocationDAO {
     private static LocationDAO instance = null;
     private final FileChooser fileChooser = new FileChooser();
-    private PreparedStatement addLocation, editLocation, deleteLocation, getLocations, fetchLatestLocation, getSelectedLocation, addFile, editFile, fetchLocatinByLatLong, deleteAllFromLocation, deleteAllFromFile;
+    private PreparedStatement addLocation, editLocation, deleteLocation, getLocations, fetchLatestLocation, getSelectedLocation, addFile, editFile, fetchLocationByLatLong, deleteAllFromLocation, deleteAllFromFile;
     private Connection conn;
     private UpdateMapInterface updateMapInterface;
 
@@ -29,12 +29,10 @@ public class LocationDAO {
         try {
             conn = DriverManager.getConnection("jdbc:sqlite:database.db");
             prepareStatements();
-            conn.prepareStatement("PRAGMA foreign_keys = ON").executeUpdate();
         } catch (SQLException e) {
             regenerateDatabase();
             try {
                 prepareStatements();
-                conn.prepareStatement("PRAGMA foreign_keys = ON").executeUpdate();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
@@ -62,7 +60,7 @@ public class LocationDAO {
     }
 
     private void regenerateDatabase() {
-        Scanner ulaz = null;
+        Scanner ulaz;
         try {
             ulaz = new Scanner(App.class.getResourceAsStream("database/generateDatabase.sql"));
             StringBuilder sqlUpit = new StringBuilder();
@@ -74,7 +72,6 @@ public class LocationDAO {
                         stmt.execute(sqlUpit.toString());
                         sqlUpit = new StringBuilder();
                     } catch (SQLException e) {
-                        System.out.println(conn == null);
                         e.printStackTrace();
                     }
                 }
@@ -94,9 +91,11 @@ public class LocationDAO {
         getSelectedLocation = conn.prepareStatement("SELECT l.id, l.name, l.latitude, l.longitude, f.path, l.is_in_kabul FROM location l, file f WHERE l.latitude = ? AND l.longitude = ? AND l.id = f.point_id");
         addFile = conn.prepareStatement("INSERT INTO file (path, point_id) VALUES (?, ?)");
         editFile = conn.prepareStatement("UPDATE file SET PATH=? WHERE point_id=?");
-        fetchLocatinByLatLong = conn.prepareStatement("SELECT id FROM location WHERE latitude = ? and longitude = ?");
+        fetchLocationByLatLong = conn.prepareStatement("SELECT id FROM location WHERE latitude = ? and longitude = ?");
         deleteAllFromFile = conn.prepareStatement("DELETE FROM file");
         deleteAllFromLocation = conn.prepareStatement("DELETE FROM location");
+
+        conn.prepareStatement("PRAGMA foreign_keys = ON").executeUpdate();
     }
 
     public ArrayList<Location> getLocations(boolean isInKabul) {
@@ -107,7 +106,6 @@ public class LocationDAO {
             while (result.next()) {
                 Location location = new Location(result.getInt(1), result.getString(2), result.getDouble(3),
                         result.getDouble(4), result.getString(5), result.getBoolean(6));
-                System.out.println(location.getId() + " " + location.getName());
                 locations.add(location);
             }
         } catch (SQLException e) {
@@ -194,13 +192,13 @@ public class LocationDAO {
 
     public boolean doesExist(double latitude, double longitude) {
         try {
-            fetchLocatinByLatLong.setDouble(1, latitude);
-            fetchLocatinByLatLong.setDouble(2, longitude);
-            ResultSet result = fetchLocatinByLatLong.executeQuery();
+            fetchLocationByLatLong.setDouble(1, latitude);
+            fetchLocationByLatLong.setDouble(2, longitude);
+            ResultSet result = fetchLocationByLatLong.executeQuery();
             if (result.next())
                 return true;
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
         }
         return false;
     }
@@ -209,21 +207,20 @@ public class LocationDAO {
         try {
             deleteAllFromFile.executeUpdate();
             deleteAllFromLocation.executeUpdate();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
         }
     }
 
     public void loadDataFromFile(Stage primaryStage) {
         File selectedFile = fileChooser.showOpenDialog(primaryStage);
         if (selectedFile != null) {
-            String line = "";
+            String line;
             try (BufferedReader br = new BufferedReader(new FileReader(selectedFile))) {
                 br.readLine();
                 while ((line = br.readLine()) != null) {
                     line = line.replace("\"", "");
                     String[] location = line.split("\\?");
-                    System.out.println(location[0] + " " + location[1] + " " + location[2] + " " + location[3] + " " + location[4]);
                     if (!doesExist(Double.parseDouble(location[2]), Double.parseDouble(location[3]))) {
 
                         if (location.length == 6)

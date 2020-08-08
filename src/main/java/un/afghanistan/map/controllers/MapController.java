@@ -17,7 +17,6 @@ import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.jfoenix.controls.JFXProgressBar;
 import com.jfoenix.controls.JFXToggleButton;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
@@ -28,7 +27,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
@@ -48,11 +46,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,12 +59,6 @@ import static un.afghanistan.map.App.primaryStage;
 
 public class MapController implements UpdateMapInterface {
     private final GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
-    private final BiFunction<? super Void, Throwable, ? super Void> handle = (obj, ex) -> {
-        System.out.println(ex.getMessage());
-        return null;
-    };
-    @FXML
-    private BorderPane pane;
     @FXML
     private StackPane centerPane;
     @FXML
@@ -104,10 +94,10 @@ public class MapController implements UpdateMapInterface {
                 "National Geographic", "Navigation", "OpenStreetMap", "Streets", "Streets (Night)", "Terrain with Labels", "Topographic");
         comboBox.setCellFactory(c -> new BasemapListCell());
 
-        // Cutomize listview
+        // Customize listview
         locationListView.setCellFactory(lv -> {
 
-            ListCell<Location> cell = new ListCell<Location>() {
+            ListCell<Location> cell = new ListCell<>() {
                 @Override
                 protected void updateItem(Location l, boolean empty) {
                     super.updateItem(l, empty);
@@ -130,7 +120,7 @@ public class MapController implements UpdateMapInterface {
                     Location l = cell.getItem();
                     Viewpoint viewpoint = new Viewpoint(l.getLatitude(), l.getLongitude(), 0.83e6);
 
-                    // Take 2 seconds to move to viewpoint
+                    // Take a second to move to viewpoint
                     final ListenableFuture<Boolean> viewpointSetFuture = mapView.setViewpointAsync(viewpoint, 1);
                     viewpointSetFuture.addDoneListener(() -> {
                         try {
@@ -225,7 +215,7 @@ public class MapController implements UpdateMapInterface {
         });
 
         callout = mapView.getCallout();
-        // Set the callout's details
+        // Set the callouts details
         callout.setBackgroundColor(Paint.valueOf("#123456"));
         callout.setTitleColor(WHITE);
         callout.setDetailColor(WHITE);
@@ -452,7 +442,7 @@ public class MapController implements UpdateMapInterface {
         LocationDAO.getInstance().saveDataToFile(primaryStage);
     }
 
-    public void deleteAllLocationsAction(ActionEvent actionEvent) {
+    public void deleteAllLocationsAction() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
         alert.setHeaderText("Are you sure you want to delete all locations?");
@@ -495,7 +485,7 @@ public class MapController implements UpdateMapInterface {
             openFile(pdfTemp);
         }
         catch (IOException e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
