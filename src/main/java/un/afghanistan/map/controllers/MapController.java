@@ -46,6 +46,7 @@ import un.afghanistan.map.utility.javafx.StageUtils;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -477,6 +478,11 @@ public class MapController implements UpdateMapInterface {
         stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
         stage.setResizable(false);
         stage.showAndWait();
+    }
+
+    public void documentationAction() {
+        URL documentation = App.class.getResource("pdf/Documentation.pdf");
+        openFile(new File (documentation.getPath()));
     }
 
     public void closeAction() {
