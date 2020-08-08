@@ -437,6 +437,7 @@ public class MapController implements UpdateMapInterface {
     public void onDeleteLocationRequest(Location location) {
         locationListView.getItems().removeAll(location);
         graphicsOverlay.getGraphics().remove(previouslySelectedGraphic);
+        editPointBtn.setDisable(true);
         callout.dismiss();
     }
 

@@ -58,14 +58,14 @@
                 </Text>
                   <GridPane alignment="CENTER" style="-fx-background-color: #123456;">
                       <columnConstraints>
-                          <ColumnConstraints halignment="LEFT" percentWidth="30.0" />
-                          <ColumnConstraints halignment="RIGHT" percentWidth="70.0" />
+                          <ColumnConstraints halignment="LEFT" percentWidth="20.0" />
+                          <ColumnConstraints halignment="RIGHT" percentWidth="80.0" />
                       </columnConstraints>
                       <rowConstraints>
                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                       </rowConstraints>
                       <children>
-                          <ToolBar style="-fx-background-color: #123456;">
+                          <ToolBar prefWidth="160.0" style="-fx-background-color: #123456;">
                               <items>
                                   <JFXButton fx:id="addPointBtn" alignment="CENTER" onAction="#addPointAction" prefWidth="75.0" style="-fx-background-color: white;" text="Add" textAlignment="CENTER" textFill="#123456">
                                       <font>
@@ -106,7 +106,7 @@
                               <Insets />
                            </opaqueInsets>
                         </Label>
-                        <JFXToggleButton fx:id="kabulToggle" alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" onAction="#onKabulToggle" prefHeight="60.0" text="Kabul map" textFill="WHITE" toggleColor="#ad027a" toggleLineColor="#c278a8" unToggleColor="#009688" unToggleLineColor="#77c2bb">
+                        <JFXToggleButton fx:id="kabulToggle" alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" onAction="#onKabulToggle" prefHeight="60.0" prefWidth="140.0" text="Kabul map" textFill="WHITE" toggleColor="#ad027a" toggleLineColor="#c278a8" unToggleColor="#009688" unToggleLineColor="#77c2bb">
                            <font>
                               <Font size="13.0" />
                            </font>
