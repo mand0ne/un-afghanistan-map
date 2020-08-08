@@ -157,6 +157,13 @@ public class LocationPointController {
                         Double.parseDouble(latitude), Double.parseDouble(longitude), file, isInKabul));
             else if (!locationTableService.doesExist(Double.parseDouble(latitude), Double.parseDouble(longitude)))
                 locationTableService.addLocation(name, Double.parseDouble(latitude), Double.parseDouble(longitude), file, isInKabul);
+            else {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Compound with the same coordinates already exists!");
+                alert.show();
+            }
 
             closeWindow();
         }
