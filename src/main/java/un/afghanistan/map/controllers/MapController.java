@@ -471,7 +471,8 @@ public class MapController implements UpdateMapInterface {
     public void aboutAction() {
         Stage stage = new Stage();
         StageUtils.setStage(stage, "About", false, StageStyle.DECORATED, Modality.APPLICATION_MODAL);
-        StageUtils.centerStage(stage, 800, 800);
+        stage.getIcons().add(new Image(App.class.getResourceAsStream("img/unLogo.png")));
+        StageUtils.centerStage(stage, 400, 500);
         Parent root = FXMLUtils.loadController("fxml/about.fxml");
         stage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
         stage.setResizable(false);
