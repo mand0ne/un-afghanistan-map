@@ -45,7 +45,9 @@ import un.afghanistan.map.utility.javafx.StageUtils;
 
 import java.awt.*;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -481,8 +483,20 @@ public class MapController implements UpdateMapInterface {
     }
 
     public void documentationAction() {
-        URL documentation = App.class.getResource("pdf/Documentation.pdf");
-        openFile(new File (documentation.getPath()));
+        InputStream jarPdf = App.class.getResourceAsStream("pdf/Documentation.pdf");
+
+        try {
+            File pdfTemp = new File("Documentation.pdf");
+            FileOutputStream fos = new FileOutputStream(pdfTemp);
+            while (jarPdf.available() > 0) {
+                fos.write(jarPdf.read());
+            }
+            fos.close();
+            openFile(pdfTemp);
+        }
+        catch (IOException e) {
+            System.out.println(e);
+        }
     }
 
     public void closeAction() {
