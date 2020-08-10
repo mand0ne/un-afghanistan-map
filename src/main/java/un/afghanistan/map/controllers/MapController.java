@@ -259,6 +259,7 @@ public class MapController implements UpdateMapInterface {
         if (callout != null)
             callout.dismiss();
 
+        editPointBtn.setDisable(true);
         ArrayList<Location> locations = LocationDAO.getInstance().getLocations(kabulToggle.isSelected());
 
         locationListView.getItems().clear();

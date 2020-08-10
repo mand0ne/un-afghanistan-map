@@ -68,6 +68,7 @@ public class App extends Application {
     @Override
     public void stop() {
         try {
+            System.out.println("STOPPED!");
             super.stop();
             mapView.dispose();
         } catch (Exception e) {

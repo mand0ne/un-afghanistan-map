@@ -8,7 +8,7 @@
 <?import javafx.scene.text.Font?>
 
 <Pane fx:id="aboutPane" maxHeight="500.0" maxWidth="400.0" prefHeight="500.0" prefWidth="400.0"
-      style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/11.0.1"
+      style="-fx-background-color: #123456;" xmlns="http://javafx.com/javafx/11"
       xmlns:fx="http://javafx.com/fxml/1">
     <stylesheets>
         <URL value="@/un/afghanistan/map/css/about.css"/>
